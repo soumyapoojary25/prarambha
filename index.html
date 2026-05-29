@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Admission Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-anim"></div>
+    <div class="container">
+        <header class="form-header">
+            <div class="logo-container">
+                <img src="static/college-logo.svg" alt="Dr. B. B. Hegde College Logo" class="college-logo">
+            </div>
+            <div class="header-text">
+                <h1>Dr. B. B. Hegde First Grade College</h1>
+                <p class="address">KUNDAPURA - 576201, Udupi Dist.</p>
+                <div class="accreditations">
+                    <p>Accredited by NAAC with B++ Grade ( Cycle I )</p>
+                    <p>Affiliated to Mangalore University - Approved by AICTE</p>
+                    <p>( A Unit of Coondapur Education Society (R.), Kundapura )</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="form-title">
+            <h2>APPLICATION FOR ADMISSION TO FIRST YEAR B.Com./B.B.A./B.C.A.</h2>
+            <div class="app-no">
+                <label for="app-no">APPLICATION NO. :</label>
+                <input type="text" id="app-no" name="app-no" class="inline-input highlight-input" readonly value="0">
+            </div>
+        </div>
+
+        <form id="admission-form">
+            <!-- 1. Name & WhatsApp -->
+            <div class="form-row">
+                <div class="form-group flex-2">
+                    <label for="name">1. Name of the Applicant <span class="sub-label">(In BLOCK LETTERS as entered in
+                            SSLC)</span></label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group flex-1">
+                    <label for="whatsapp">WhatsApp Mobile No.</label>
+                    <input type="tel" id="whatsapp" name="whatsapp" required placeholder="Enter mobile number">
+                </div>
+            </div>
+
+            <!-- Gender & DOB -->
+            <div class="form-row">
+                <div class="form-group flex-1">
+                    <label>Gender</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="male" required>
+                            <span class="custom-radio"></span> Male
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="female" required>
+                            <span class="custom-radio"></span> Female
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group flex-2">
+                    <label>Date of birth as entered in SSLC Marks Card</label>
+                    <div class="dob-group">
+                        <div class="dob-input-wrapper">
+                            <input type="text" class="dob-digit dob-date-1" maxlength="1" inputmode="numeric" placeholder="D" required>
+                            <input type="text" class="dob-digit dob-date-2" maxlength="1" inputmode="numeric" placeholder="D" required>
+                            <input type="text" class="dob-digit dob-month-1" maxlength="1" inputmode="numeric" placeholder="M" required>
+                            <input type="text" class="dob-digit dob-month-2" maxlength="1" inputmode="numeric" placeholder="M" required>
+                            <input type="text" class="dob-digit dob-year-1" maxlength="1" inputmode="numeric" placeholder="Y" required>
+                            <input type="text" class="dob-digit dob-year-2" maxlength="1" inputmode="numeric" placeholder="Y" required>
+                            <input type="text" class="dob-digit dob-year-3" maxlength="1" inputmode="numeric" placeholder="Y" required>
+                            <input type="text" class="dob-digit dob-year-4" maxlength="1" inputmode="numeric" placeholder="Y" required>
+                        </div>
+                        <input type="hidden" id="dob-date" name="dob-date">
+                        <input type="hidden" id="dob-month" name="dob-month">
+                        <input type="hidden" id="dob-year" name="dob-year">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Nationality & IDs -->
+            <div class="form-section">
+                <h3 class="section-title">4. Nationality & Identification</h3>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="nationality">Nationality</label>
+                        <input type="text" id="nationality" name="nationality" required placeholder="e.g. Indian">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="blood-group">Blood Group</label>
+                        <input type="text" id="blood-group" name="blood-group" placeholder="e.g. O+">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="email">Student Email ID</label>
+                        <input type="email" id="email" name="email" required placeholder="Enter email address">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="aadhar">Student Aadhar No.</label>
+                        <input type="text" id="aadhar" name="aadhar" placeholder="Enter Aadhar No.">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="pan">Student PAN</label>
+                        <input type="text" id="pan" name="pan" placeholder="Enter PAN">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Place of birth -->
+            <div class="form-section">
+                <h3 class="section-title">5. Place of Birth</h3>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="village">i) Village</label>
+                        <input type="text" id="village" name="village">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="taluk">ii) Taluk</label>
+                        <input type="text" id="taluk" name="taluk">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="district">iii) District</label>
+                        <input type="text" id="district" name="district">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Religion & Caste -->
+            <div class="form-section">
+                <h3 class="section-title">6. Religion & Caste</h3>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="religion">i) Religion</label>
+                        <select id="religion" name="religion" required autocomplete="off">
+                            <option value="" disabled selected>Select Religion</option>
+                            <option value="Hindu">Hindu</option>
+                            <option value="Muslim">Muslim</option>
+                            <option value="Christian">Christian</option>
+                            <option value="Sikh">Sikh</option>
+                            <option value="Buddhist">Buddhist</option>
+                            <option value="Jain">Jain</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="caste">ii) Caste & Sub Caste</label>
+                        <input type="text" id="caste" name="caste" required>
+                    </div>
+                </div>
+                <div class="info-note">
+                    <strong>Note:</strong> The Students seeking reservation of seats as per G.O. should submit the Caste
+                    Certificate in the prescribed form along with the application. If not mentioned, they will not be
+                    considered for reservation of seats.
+                </div>
+            </div>
+
+            <!-- 7. Category -->
+            <div class="form-section">
+                <h3 class="section-title">7. Category to which applicant belongs</h3>
+                <div class="radio-chip-group">
+                    <label class="radio-chip"><input type="radio" name="category" value="SC"><span>SC</span></label>
+                    <label class="radio-chip"><input type="radio" name="category" value="ST"><span>ST</span></label>
+                    <label class="radio-chip"><input type="radio" name="category" value="G1"><span>G1</span></label>
+                    <label class="radio-chip"><input type="radio" name="category"
+                            value="II(a)"><span>II(a)</span></label>
+                    <label class="radio-chip"><input type="radio" name="category"
+                            value="II(b)"><span>II(b)</span></label>
+                    <label class="radio-chip"><input type="radio" name="category"
+                            value="III(a)"><span>III(a)</span></label>
+                    <label class="radio-chip"><input type="radio" name="category"
+                            value="III(b)"><span>III(b)</span></label>
+                    <label class="radio-chip"><input type="radio" name="category" value="GM"><span>GM</span></label>
+                    <label class="radio-chip"><input type="radio" name="category" value="PH"><span>PH</span></label>
+                </div>
+            </div>
+
+            <!-- 8. Parents Info -->
+            <div class="form-section">
+                <h3 class="section-title">8. Parent / Guardian Information</h3>
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label for="parent-name">Name of the Father/Mother/Guardian</label>
+                        <input type="text" id="parent-name" name="parent-name" required>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="occupation">Occupation</label>
+                        <input type="text" id="occupation" name="occupation">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="postal-address">Full postal address</label>
+                    <textarea id="postal-address" name="postal-address" rows="3" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="parent-phone">Phone number : Residence (Mobile)</label>
+                        <input type="tel" id="parent-phone" name="parent-phone">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="annual-income">Annual Income of the Parent/Guardian</label>
+                        <div class="input-with-prefix">
+                            <span class="prefix">Rs.</span>
+                            <input type="number" id="annual-income" name="annual-income">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="permanent-address">Permanent address</label>
+                    <textarea id="permanent-address" name="permanent-address" rows="3"></textarea>
+                    <div class="pin-group">
+                        <label for="pin">PIN</label>
+                        <div class="pin-boxes">
+                            <input type="text" maxlength="1" class="pin-box">
+                            <input type="text" maxlength="1" class="pin-box">
+                            <input type="text" maxlength="1" class="pin-box">
+                            <input type="text" maxlength="1" class="pin-box">
+                            <input type="text" maxlength="1" class="pin-box">
+                            <input type="text" maxlength="1" class="pin-box">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. Program & Language -->
+            <div class="form-section">
+                <h3 class="section-title">9. Program & Language Preferences</h3>
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label>a) Program to which admission is sought</label>
+                        <div class="checkbox-grid">
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.Com (Regular)"> <span class="custom-radio"></span> B.Com (Regular)</label>
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.B.A. (Regular)"> <span class="custom-radio"></span> B.B.A. (Regular)</label>
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.C.A. (Regular)"> <span class="custom-radio"></span> B.C.A. (Regular)</label>
+
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.Com (CA/CMA/CS)"> <span class="custom-radio"></span> B.Com (CA/CMA/CS)</label>
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.B.A. (Logistics and Supply Chain Management)"> <span class="custom-radio"></span> B.B.A. (Logistics and Supply Chain Management)</label>
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.C.A. (Artificial Intelligence and Machine Learning)"> <span class="custom-radio"></span> B.C.A. (Artificial Intelligence and Machine Learning)</label>
+
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.Com (Data Science)"> <span class="custom-radio"></span> B.Com (Data Science)</label>
+                                <div></div> <!-- spacer -->
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.C.A. (Cyber Security)"> <span class="custom-radio"></span> B.C.A. (Cyber Security)</label>
+
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.Com (Tally Prime)"> <span class="custom-radio"></span> B.Com (Tally Prime)</label>
+                                <div></div> <!-- spacer -->
+                                <div></div> <!-- spacer -->
+
+                                <label class="custom-radio-label"><input type="radio" name="program"
+                                    value="B.Com (Staff Selection Commission)"> <span class="custom-radio"></span> B.Com (Staff Selection Commission)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row mt-3">
+                    <div class="form-group">
+                        <label>b) Second Language Preferred</label>
+                        <div class="checkbox-inline-group">
+                            <label class="custom-checkbox-label"><input type="radio" name="language" value="Kannada">
+                                <span class="checkmark"></span> Kannada</label>
+                            <label class="custom-checkbox-label"><input type="radio" name="language" value="Hindi">
+                                <span class="checkmark"></span> Hindi</label>
+                            <label class="custom-checkbox-label"><input type="radio" name="language"
+                                    value="Sanskrit"> <span class="checkmark"></span> Sanskrit</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Educational Qualification -->
+            <div class="form-section">
+                <h3 class="section-title">10. Particulars of Educational qualification</h3>
+                <div class="form-group">
+                    <label for="college-attended">(a) Name of the College last attended</label>
+                    <input type="text" id="college-attended" name="college-attended" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="first-puc">(i) First Year PUC</label>
+                        <input type="text" id="first-puc" name="first-puc">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="second-puc">(ii) Second Year PUC</label>
+                        <input type="text" id="second-puc" name="second-puc">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>Submit Application</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <h2>Application Submitted Successfully!</h2>
+            <p>Your application number is <strong id="success-app-no">0</strong>.</p>
+            <button id="close-modal" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

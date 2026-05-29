@@ -1,0 +1,439 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'dashboard' %}
+
+{% block title %}Prarambha – University Admission Dashboard{% endblock %}
+
+{% block content %}
+            <!-- Dynamic Sticky SaaS Header -->
+            <div class="admin-top-navbar">
+                <div class="admin-top-left">
+                    <div class="greeting-copy">
+                        <h2 id="greeting-title">Good Morning, Admin 👋</h2>
+                        <p class="greeting-subtitle">Welcome back to Prarambha admission workspace.</p>
+                    </div>
+                </div>
+                
+                <div class="admin-top-right">
+                    <div class="nav-datetime" id="live-clock">
+                        <i class="far fa-clock"></i> <span id="clock-text">--:--:--</span>
+                        <span class="date-sep">|</span>
+                        <span id="date-text">---, --- --, ----</span>
+                    </div>
+                    
+                    <button class="icon-button" title="Notifications">
+                        <i class="far fa-bell"></i>
+                        <span class="icon-badge">3</span>
+                    </button>
+                    
+                    <button class="icon-button" id="dark-mode-toggle" title="Toggle theme">
+                        <i class="far fa-moon"></i>
+                    </button>
+                    
+                    <div class="admin-profile">
+                        <div class="profile-avatar">AD</div>
+                        <div class="profile-info">
+                            <strong>{{ session.admin_email.split('@')[0] | capitalize }}</strong>
+                            <span>System Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Analytics Overview Cards -->
+            <div class="stats-grid">
+                <div class="stat-card" style="border-top: 4px solid var(--primary);">
+                    <div class="stat-card-header">
+                        <h3>Total Applications</h3>
+                        <div class="stat-icon-box"><i class="fas fa-file-invoice"></i></div>
+                    </div>
+                    <strong>{{ stats.total }}</strong>
+                    <span class="stat-trend positive"><i class="fas fa-arrow-up"></i> +12% this week</span>
+                </div>
+                <div class="stat-card" style="border-top: 4px solid var(--success);">
+                    <div class="stat-card-header">
+                        <h3>Approved</h3>
+                        <div class="stat-icon-box success"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <strong style="color: var(--success);">{{ stats.approved }}</strong>
+                    <span class="stat-trend positive"><i class="fas fa-arrow-up"></i> {{ ((stats.approved / stats.total) * 100) | round | int if stats.total > 0 else 0 }}% approval rate</span>
+                </div>
+                <div class="stat-card" style="border-top: 4px solid var(--warning);">
+                    <div class="stat-card-header">
+                        <h3>Pending Review</h3>
+                        <div class="stat-icon-box warning"><i class="fas fa-hourglass-half"></i></div>
+                    </div>
+                    <strong style="color: var(--warning);">{{ stats.pending }}</strong>
+                    <span class="stat-trend neutral">Needs review</span>
+                </div>
+                <div class="stat-card" style="border-top: 4px solid var(--danger);">
+                    <div class="stat-card-header">
+                        <h3>Rejected</h3>
+                        <div class="stat-icon-box danger"><i class="fas fa-times-circle"></i></div>
+                    </div>
+                    <strong style="color: var(--danger);">{{ stats.rejected }}</strong>
+                    <span class="stat-trend negative">Rejected</span>
+                </div>
+            </div>
+
+            <!-- Premium Visual Analytics Section -->
+            <div class="seat-map-panel" id="analytics-section" style="margin-bottom: 24px;">
+                <div class="seat-map-header">
+                    <div class="seat-map-title">
+                        <h3><i class="fas fa-chart-line" style="color: var(--primary); margin-right: 8px;"></i> Admissions Analytics</h3>
+                        <p>Real-time application flow and demographic insights</p>
+                    </div>
+                </div>
+                <div class="analytics-charts-grid" style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 24px; margin-top: 12px;">
+                    <div class="chart-card" style="background: rgba(255,255,255,0.7); border: 1px solid rgba(148,163,184,0.12); padding: 22px; border-radius: 20px; box-shadow: var(--shadow-soft);">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 16px; color: var(--text); font-weight: 700;">Applications Overview & Monthly Flow</h4>
+                        <div style="height: 280px; position: relative;">
+                            <canvas id="applicationsOverviewChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card" style="background: rgba(255,255,255,0.7); border: 1px solid rgba(148,163,184,0.12); padding: 22px; border-radius: 20px; box-shadow: var(--shadow-soft);">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 16px; color: var(--text); font-weight: 700;">Course Distribution</h4>
+                        <div style="height: 280px; position: relative; display: flex; justify-content: center; align-items: center;">
+                            <canvas id="courseDistributionChart" style="max-height: 240px; max-width: 240px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seat Allotment / Courses Section -->
+            <div class="seat-map-panel" id="seat-allocation-section" style="margin-bottom: 24px;">
+                <div class="seat-map-header">
+                    <div class="seat-map-title" id="courses-section">
+                        <h3><i class="fas fa-th-large" style="color: var(--primary); margin-right: 8px;"></i> Course Seat Allocation</h3>
+                        <p>Course-wise and specialisation-wise seat distribution — click any option to view seat allocation</p>
+                    </div>
+                </div>
+
+                <div class="allotment-courses-grid">
+                    <!-- ── BCA ── -->
+                    <div class="allotment-course-card bca">
+                        <div class="allotment-course-header">
+                            <div class="allotment-course-icon"><i class="fas fa-laptop-code"></i></div>
+                            <div>
+                                <div class="allotment-course-name">BCA</div>
+                                <div class="allotment-course-sub">Bachelor of Computer Applications</div>
+                            </div>
+                            {% for cs in course_seats if cs.course_name == 'BCA' %}
+                            <div class="allotment-course-total">
+                                <span class="allotment-filled">{{ cs.filled_seats }}</span>
+                                <span class="allotment-slash">/</span>
+                                <span class="allotment-total-num">{{ cs.total_seats }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Progress bar and spec listing -->
+                        {% for cs in course_seats if cs.course_name == 'BCA' %}
+                        {% set bca_percent = ((cs.filled_seats / cs.total_seats) * 100) | round | int if cs.total_seats > 0 else 0 %}
+                        <div style="margin-top: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px;">
+                                <span>Occupancy</span>
+                                <span>{{ bca_percent }}%</span>
+                            </div>
+                            <div class="capacity-bar-bg" style="height: 6px;">
+                                <div class="capacity-bar green" style="width: {{ bca_percent }}%; background: linear-gradient(90deg, #3b82f6, #1d4ed8);"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="allotment-spec-grid">
+                            {% for ss in spec_seats if ss.course_name == 'BCA' %}
+                            <a href="{{ url_for('admin.course_spec_detail', course='BCA', spec_name=ss.spec_name) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
+                                <div class="allotment-spec-label">{{ ss.spec_name }}</div>
+                                <div class="allotment-spec-seats">
+                                    <i class="fas fa-chair" style="margin-right: 4px;"></i> <span>{{ ss.filled_seats }} / {{ ss.total_seats }}</span>
+                                </div>
+                                <div class="allotment-spec-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ── BCom ── -->
+                    <div class="allotment-course-card bcom">
+                        <div class="allotment-course-header">
+                            <div class="allotment-course-icon"><i class="fas fa-chart-line"></i></div>
+                            <div>
+                                <div class="allotment-course-name">BCom</div>
+                                <div class="allotment-course-sub">Bachelor of Commerce</div>
+                            </div>
+                            {% for cs in course_seats if cs.course_name == 'BCom' %}
+                            <div class="allotment-course-total">
+                                <span class="allotment-filled">{{ cs.filled_seats }}</span>
+                                <span class="allotment-slash">/</span>
+                                <span class="allotment-total-num">{{ cs.total_seats }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Progress bar and spec listing -->
+                        {% for cs in course_seats if cs.course_name == 'BCom' %}
+                        {% set bcom_percent = ((cs.filled_seats / cs.total_seats) * 100) | round | int if cs.total_seats > 0 else 0 %}
+                        <div style="margin-top: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px;">
+                                <span>Occupancy</span>
+                                <span>{{ bcom_percent }}%</span>
+                            </div>
+                            <div class="capacity-bar-bg" style="height: 6px;">
+                                <div class="capacity-bar green" style="width: {{ bcom_percent }}%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="allotment-spec-grid">
+                            {% for ss in spec_seats if ss.course_name == 'BCom' %}
+                            <a href="{{ url_for('admin.course_spec_detail', course='BCom', spec_name=ss.spec_name) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
+                                <div class="allotment-spec-label">{{ ss.spec_name }}</div>
+                                <div class="allotment-spec-seats">
+                                    <i class="fas fa-chair" style="margin-right: 4px;"></i> <span>{{ ss.filled_seats }} / {{ ss.total_seats }}</span>
+                                </div>
+                                <div class="allotment-spec-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ── BBA ── -->
+                    <div class="allotment-course-card bba">
+                        <div class="allotment-course-header">
+                            <div class="allotment-course-icon"><i class="fas fa-briefcase"></i></div>
+                            <div>
+                                <div class="allotment-course-name">BBA</div>
+                                <div class="allotment-course-sub">Bachelor of Business Administration</div>
+                            </div>
+                            {% for cs in course_seats if cs.course_name == 'BBA' %}
+                            <div class="allotment-course-total">
+                                <span class="allotment-filled">{{ cs.filled_seats }}</span>
+                                <span class="allotment-slash">/</span>
+                                <span class="allotment-total-num">{{ cs.total_seats }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Progress bar and spec listing -->
+                        {% for cs in course_seats if cs.course_name == 'BBA' %}
+                        {% set bba_percent = ((cs.filled_seats / cs.total_seats) * 100) | round | int if cs.total_seats > 0 else 0 %}
+                        <div style="margin-top: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px;">
+                                <span>Occupancy</span>
+                                <span>{{ bba_percent }}%</span>
+                            </div>
+                            <div class="capacity-bar-bg" style="height: 6px;">
+                                <div class="capacity-bar green" style="width: {{ bba_percent }}%; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="allotment-spec-grid">
+                            {% for ss in spec_seats if ss.course_name == 'BBA' %}
+                            <a href="{{ url_for('admin.course_spec_detail', course='BBA', spec_name=ss.spec_name) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
+                                <div class="allotment-spec-label">{{ ss.spec_name }}</div>
+                                <div class="allotment-spec-seats">
+                                    <i class="fas fa-chair" style="margin-right: 4px;"></i> <span>{{ ss.filled_seats }} / {{ ss.total_seats }}</span>
+                                </div>
+                                <div class="allotment-spec-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent applications section -->
+            <div class="section-panel" style="margin-bottom: 24px;">
+                <div class="section-header">
+                    <div>
+                        <h3>Recent Applications</h3>
+                        <p>Latest submissions awaiting your review.</p>
+                    </div>
+                    <a href="{{ url_for('admin.applications') }}" class="button secondary small">Manage applications</a>
+                </div>
+                <div class="table-container" style="margin-top: 8px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Sl. No.</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if recent_apps %}
+                                {% for app in recent_apps %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div class="profile-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%;">
+                                                {{ app.fullname[0] | upper }}
+                                            </div>
+                                            <strong>{{ app.fullname }}</strong>
+                                        </div>
+                                    </td>
+                                    <td>{{ app.course or 'N/A' }}</td>
+                                    <td><span class="badge {{ app.status }}">{{ app.status }}</span></td>
+                                    <td style="text-align: right;">
+                                        <a href="{{ url_for('admin.application_detail', application_id=app.id) }}" class="button secondary small" style="padding: 6px 12px; font-size: 0.8rem; margin: 0; border-radius: 8px;">Review</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="5" class="empty-row">No recent applications found.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Premium Live Clock and Dynamic time-based Greeting
+    const greetingText = document.getElementById('greeting-title');
+    const clockText = document.getElementById('clock-text');
+    const dateText = document.getElementById('date-text');
+
+    function updateLiveClock() {
+        const now = new Date();
+        
+        // Dynamic time greeting
+        const hour = now.getHours();
+        if (hour < 12) {
+            greetingText.innerHTML = "Good Morning, Admin 👋";
+        } else if (hour < 17) {
+            greetingText.innerHTML = "Good Afternoon, Admin 👋";
+        } else {
+            greetingText.innerHTML = "Good Evening, Admin 👋";
+        }
+
+        // Live Clock text
+        clockText.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        // Date text
+        const options = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' };
+        dateText.textContent = now.toLocaleDateString('en-US', options);
+    }
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
+
+    // Dark Mode Toggle
+    const toggleBtn = document.getElementById('dark-mode-toggle');
+    toggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        const icon = toggleBtn.querySelector('i');
+        if (document.body.classList.contains('dark-theme')) {
+            icon.className = "fas fa-sun";
+            toggleBtn.style.color = "#f59e0b";
+        } else {
+            icon.className = "far fa-moon";
+            toggleBtn.style.color = "";
+        }
+    });
+
+    // Chart.js Visualizations Setup
+    document.addEventListener('DOMContentLoaded', () => {
+        // Dynamic stats passed from Flask template
+        const total = {{ stats.total }};
+        const approved = {{ stats.approved }};
+        const pending = {{ stats.pending }};
+        const rejected = {{ stats.rejected }};
+
+        // Course counts logic (mock/derived values to make dashboard beautiful)
+        let bcaCount = 0, bcomCount = 0, bbaCount = 0;
+        {% for cs in course_seats %}
+            if ("{{ cs.course_name }}" === "BCA") bcaCount = {{ cs.filled_seats }};
+            if ("{{ cs.course_name }}" === "BCom") bcomCount = {{ cs.filled_seats }};
+            if ("{{ cs.course_name }}" === "BBA") bbaCount = {{ cs.filled_seats }};
+        {% endfor %}
+
+        // 1. Applications Bar Chart
+        const barCtx = document.getElementById('applicationsOverviewChart').getContext('2d');
+        const barGradient = barCtx.createLinearGradient(0, 0, 0, 280);
+        barGradient.addColorStop(0, 'rgba(37, 99, 235, 0.85)');
+        barGradient.addColorStop(1, 'rgba(37, 99, 235, 0.1)');
+
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Applications Received',
+                    data: [total * 0.1, total * 0.15, total * 0.22, total * 0.35, total * 0.65, total],
+                    backgroundColor: barGradient,
+                    borderColor: '#2563eb',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    barPercentage: 0.55
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(148, 163, 184, 0.08)' },
+                        ticks: { color: '#64748b', font: { family: 'Inter', size: 10 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { family: 'Inter', size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // 2. Course Distribution Doughnut Chart
+        const doughnutCtx = document.getElementById('courseDistributionChart').getContext('2d');
+        new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['BCA', 'BCom', 'BBA'],
+                datasets: [{
+                    data: [bcaCount || 5, bcomCount || 8, bbaCount || 3],
+                    backgroundColor: [
+                        '#3b82f6', // BCA - Blue
+                        '#10b981', // BCom - Green
+                        '#f59e0b'  // BBA - Amber
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#64748b',
+                            font: { family: 'Inter', size: 11, weight: '600' },
+                            padding: 14
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    });
+</script>
+{% endblock %}

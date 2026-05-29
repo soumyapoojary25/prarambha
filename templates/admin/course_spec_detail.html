@@ -1,0 +1,111 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'dashboard' %}
+
+{% block title %}{{ course }} – {{ spec_name }} Seat Allocation – Prarambha Admin{% endblock %}
+
+{% block content %}
+            <!-- Breadcrumb -->
+            <div class="spec-detail-breadcrumb">
+                <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <span class="bc-sep">/</span>
+                <span>{{ course }}</span>
+                <span class="bc-sep">/</span>
+                <span style="font-weight: 700; color: var(--text);">{{ spec_name }}</span>
+            </div>
+
+            <!-- Header -->
+            <div class="spec-detail-header">
+                <div class="spec-detail-title">
+                    <h2>🎓 {{ course }} — {{ spec_name }}</h2>
+                    <p>{{ spec_type }} · Real-time seat allocation view · {{ total }} seats</p>
+                </div>
+                <a href="{{ url_for('admin.dashboard') }}" class="action-button secondary" style="white-space: nowrap;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="spec-detail-stats">
+                <div class="spec-stat-card blue">
+                    <div class="stat-label">Total Seats</div>
+                    <div class="stat-value">{{ total }}</div>
+                </div>
+                <div class="spec-stat-card red">
+                    <div class="stat-label">Allocated</div>
+                    <div class="stat-value">{{ filled }}</div>
+                </div>
+                <div class="spec-stat-card green">
+                    <div class="stat-label">Remaining</div>
+                    <div class="stat-value">{{ remaining }}</div>
+                </div>
+            </div>
+
+            <!-- Seat Grid Panel -->
+            <div class="spec-detail-grid-panel">
+                <div class="spec-grid-header">
+                    <h3>Classroom Seating Layout</h3>
+                    <p>Hover over occupied seats to see student details</p>
+
+                    {% set percent = ((filled / total) * 100) | round | int if total > 0 else 0 %}
+                    <div class="spec-progress-bar-bg" style="max-width: 400px; margin: 12px auto 0;">
+                        <div class="spec-progress-bar" style="width: {{ percent }}%;"></div>
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--muted); font-weight: 600; margin-top: 6px;">{{ percent }}% filled</div>
+                </div>
+
+                <div class="spec-front-board">
+                    <i class="fas fa-desktop" style="margin-right: 4px; color: var(--primary);"></i> Instructor / Classroom Front
+                </div>
+
+                <div class="spec-seating-grid">
+                    {% for seat in seats %}
+                    <div class="spec-seat {{ seat.status }}">
+                        <span class="seat-icon">💺</span>
+                        <span class="seat-label">{{ seat.label }}</span>
+                        <div class="spec-seat-tip">
+                            {% if seat.status == 'occupied' %}
+                                <div class="tip-heading occupied">{{ course }} Student</div>
+                                <div class="tip-name">{{ seat.student_name }}</div>
+                                <div class="tip-meta">
+                                    <div><strong>ID:</strong> #{{ seat.student_id }}</div>
+                                    <div><strong>App No:</strong> {{ seat.application_no }}</div>
+                                    <div><strong>Approved:</strong> {{ seat.approved_at }}</div>
+                                </div>
+                            {% else %}
+                                <div class="tip-heading available">Available</div>
+                                <div class="tip-name">Seat is empty</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="spec-detail-legend">
+                    <div class="legend-entry">
+                        <div class="legend-dot avail"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-entry">
+                        <div class="legend-dot occ"></div>
+                        <span>Occupied</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Specializations in this Course -->
+            <div class="spec-detail-grid-panel">
+                <div class="spec-grid-header">
+                    <h3>Other {{ course }} Specializations</h3>
+                    <p>Quick-switch between all {{ course }} options</p>
+                </div>
+                <div class="sibling-specs-grid">
+                    {% for ss in spec_seats %}
+                    <a href="{{ url_for('admin.course_spec_detail', course=course, spec_name=ss.spec_name) }}"
+                       class="sibling-spec-chip allotment-spec-box {{ ss.color }} {{ 'current' if ss.spec_name == spec_name else '' }}">
+                        <span class="chip-name">{{ ss.spec_name }}</span>
+                        <span class="chip-count"><i class="fas fa-chair" style="margin-right: 2px;"></i> {{ ss.filled_seats }} / {{ ss.total_seats }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'applications' %}
+
+{% block title %}Prarambha Admin Application Detail{% endblock %}
+
+{% block content %}
+            <div class="admin-topbar">
+                <div>
+                    <h2>Application #{{ application.id }}</h2>
+                    <p>Review details and update status or remarks.</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="section-panel">
+                <div class="section-header">
+                    <div>
+                        <h3>Student Information</h3>
+                        <p>Application number: {{ application.application_no }}</p>
+                    </div>
+                    <a href="{{ url_for('admin.applications') }}" class="button secondary">Back to list</a>
+                </div>
+
+                <div class="card-grid" style="grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+                    <!-- LEFT COLUMN: All Student Details Stacked -->
+                    <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+                        
+                        <!-- Panel 1: Personal Details -->
+                        <div class="section-panel" style="margin: 0; padding: 24px;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text); border-bottom: 1px solid rgba(148,163,184,0.12); padding-bottom: 12px; margin-bottom: 16px;">
+                                <i class="fa-regular fa-user" style="margin-right: 8px; color: var(--primary);"></i> Personal Details
+                            </h4>
+                            <div class="form-panel" style="grid-template-columns: repeat(2, 1fr); gap: 14px 18px;">
+                                <div class="label-group"><label>Full Name</label><div>{{ application.name or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Gender</label><div style="text-transform: capitalize;">{{ application.gender or 'N/A' }}</div></div>
+                                <div class="label-group">
+                                    <label>Date of Birth</label>
+                                    <div>
+                                        {% if application.dob_date and application.dob_month and application.dob_year %}
+                                            {{ "%02d"|format(application.dob_date|int) }}/{{ "%02d"|format(application.dob_month|int) }}/{{ application.dob_year }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="label-group"><label>Blood Group</label><div>{{ application.blood_group or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Nationality</label><div>{{ application.nationality or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Student Email ID</label><div>{{ application.email or 'N/A' }}</div></div>
+                                <div class="label-group"><label>WhatsApp Mobile No.</label><div>{{ application.whatsapp or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Student Aadhar No.</label><div>{{ application.aadhar or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Student PAN</label><div>{{ application.pan or 'N/A' }}</div></div>
+                            </div>
+                        </div>
+
+                        <!-- Panel 2: Place of Birth, Religion & Caste -->
+                        <div class="section-panel" style="margin: 0; padding: 24px;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text); border-bottom: 1px solid rgba(148,163,184,0.12); padding-bottom: 12px; margin-bottom: 16px;">
+                                <i class="fa-solid fa-map-location-dot" style="margin-right: 8px; color: var(--primary);"></i> Origin & Caste Details
+                            </h4>
+                            <div class="form-panel" style="grid-template-columns: repeat(2, 1fr); gap: 14px 18px;">
+                                <div class="label-group" style="grid-column: span 2;">
+                                    <label>Place of Birth</label>
+                                    <div style="background: rgba(247,249,252,0.85); border: 1px dashed rgba(148,163,184,0.25); display: flex; flex-wrap: wrap; gap: 20px; font-size: 0.95rem; padding: 14px 18px;">
+                                        <span><strong>Village:</strong> {{ application.village or 'N/A' }}</span>
+                                        <span style="color: rgba(148,163,184,0.5);">|</span>
+                                        <span><strong>Taluk:</strong> {{ application.taluk or 'N/A' }}</span>
+                                        <span style="color: rgba(148,163,184,0.5);">|</span>
+                                        <span><strong>District:</strong> {{ application.district or 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="label-group"><label>Religion</label><div>{{ application.religion or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Caste & Sub Caste</label><div>{{ application.caste or 'N/A' }}</div></div>
+                                <div class="label-group" style="grid-column: span 2;">
+                                    <label>Category</label>
+                                    <div>
+                                        <span class="badge pending" style="background: rgba(37, 99, 235, 0.08); font-size: 0.85rem; padding: 6px 16px;">{{ application.category or 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel 3: Parent / Guardian Info -->
+                        <div class="section-panel" style="margin: 0; padding: 24px;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text); border-bottom: 1px solid rgba(148,163,184,0.12); padding-bottom: 12px; margin-bottom: 16px;">
+                                <i class="fa-solid fa-users-line" style="margin-right: 8px; color: var(--primary);"></i> Parent / Guardian Information
+                            </h4>
+                            <div class="form-panel" style="grid-template-columns: repeat(2, 1fr); gap: 14px 18px;">
+                                <div class="label-group"><label>Father/Mother/Guardian Name</label><div>{{ application.parent_name or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Occupation</label><div>{{ application.occupation or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Parent Phone (Residence/Mobile)</label><div>{{ application.parent_phone or 'N/A' }}</div></div>
+                                <div class="label-group">
+                                    <label>Annual Income</label>
+                                    <div>
+                                        {% if application.annual_income %}
+                                            Rs. {{ "{:,}".format(application.annual_income|int) }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="label-group" style="grid-column: span 2;"><label>Full Postal Address</label><div style="white-space: pre-line; line-height: 1.4; max-height: 100px; overflow-y: auto; word-break: break-word;">{{ application.postal_address or 'N/A' }}</div></div>
+                                <div class="label-group" style="grid-column: span 2;"><label>Permanent Address</label><div style="white-space: pre-line; line-height: 1.4; max-height: 100px; overflow-y: auto; word-break: break-word;">{{ application.permanent_address or 'N/A' }}</div></div>
+                                <div class="label-group"><label>PIN Code</label><div>{{ application.pin_code or 'N/A' }}</div></div>
+                            </div>
+                        </div>
+
+                        <!-- Panel 4: Academic History & Preferences -->
+                        <div class="section-panel" style="margin: 0; padding: 24px;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text); border-bottom: 1px solid rgba(148,163,184,0.12); padding-bottom: 12px; margin-bottom: 16px;">
+                                <i class="fa-solid fa-graduation-cap" style="margin-right: 8px; color: var(--primary);"></i> Academic Preferences & Records
+                            </h4>
+                            <div class="form-panel" style="grid-template-columns: repeat(2, 1fr); gap: 14px 18px;">
+                                <div class="label-group"><label>Program Chosen (Student Selection)</label><div><strong>{{ application.program or 'N/A' }}</strong></div></div>
+                                <div class="label-group"><label>Seat Mapped Course</label><div><strong>{{ application.course or 'N/A' }}</strong></div></div>
+                                <div class="label-group"><label>Second Language Preferred</label><div>{{ application.second_language or 'N/A' }}</div></div>
+                                <div class="label-group" style="grid-column: span 2;"><label>Name of College Last Attended</label><div>{{ application.college_attended or 'N/A' }}</div></div>
+                                <div class="label-group"><label>First Year PUC Score/Info</label><div>{{ application.first_puc or 'N/A' }}</div></div>
+                                <div class="label-group"><label>Second Year PUC Score/Info</label><div>{{ application.second_puc or 'N/A' }}</div></div>
+                                
+                                <div class="label-group" style="grid-column: span 2; margin-top: 8px;">
+                                    <label style="font-weight: 700; color: #475569;">Particulars of Qualifying Examination (12th/PUC)</label>
+                                    <div style="background: rgba(247,249,252,0.85); border: 1px dashed rgba(148,163,184,0.25); padding: 16px; border-radius: 18px;">
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px;">
+                                            <div><strong>Exam Name:</strong> {{ application.qual_exam_name or 'N/A' }}</div>
+                                            <div><strong>Board/University:</strong> {{ application.qual_exam_board or 'N/A' }}</div>
+                                            <div><strong>Register Number:</strong> {{ application.qual_exam_reg_no or 'N/A' }}</div>
+                                            <div><strong>Year of Passing:</strong> {{ application.qual_exam_year or 'N/A' }}</div>
+                                            <div><strong>Marks Obtained:</strong> {{ application.qual_exam_marks_obtained or 'N/A' }} / {{ application.qual_exam_max_marks or 'N/A' }}</div>
+                                            <div><strong>Percentage:</strong> {{ application.qual_exam_percentage or 'N/A' }}%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN: Actions & Uploaded Documents -->
+                    <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0; position: sticky; top: 24px;">
+                        
+                        <!-- Panel 1: Admin Decision -->
+                        <div class="section-panel" style="margin: 0; padding: 24px;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text); border-bottom: 1px solid rgba(148,163,184,0.12); padding-bottom: 12px; margin-bottom: 16px;">
+                                <i class="fa-solid fa-gavel" style="margin-right: 8px; color: var(--primary);"></i> Admin Decision
+                            </h4>
+                            <form method="POST" class="form-panel detail-admin-form" style="margin-top: 14px;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <div class="label-group">
+                                    <label>Administrative Remark</label>
+                                    <textarea name="admin_remark" placeholder="Add notes for this application" style="min-height: 100px; max-height: 160px; resize: vertical; width: 100%;">{{ application.admin_remark }}</textarea>
+                                </div>
+                                <div class="label-group">
+                                    <label>Decision Status</label>
+                                    <select name="status">
+                                        <option value="pending" {% if application.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="approved" {% if application.status == 'approved' %}selected{% endif %}>Approved</option>
+                                        <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                </div>
+                                {% if application.approved_at %}
+                                    <div class="label-group">
+                                        <label>Seat Allocation Info</label>
+                                        <div class="status-note" style="background: rgba(34,197,94,0.06); padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(34,197,94,0.15); display: inline-flex; align-items: center; gap: 8px; width: 100%; color: #166534; font-weight: 600;">
+                                            <i class="fa-regular fa-calendar-check"></i> Confirmed: {{ application.approved_at }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <div class="application-actions" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+                                    <button type="submit" class="button primary" style="width: 100%; font-weight: 700;">Save changes</button>
+                                    <button type="submit" name="action" value="delete" class="button danger" style="width: 100%; border-color: rgba(239, 68, 68, 0.2); font-weight: 700;" data-confirm="Delete this application?">Delete Application</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Panel 2: Uploaded Documents Checklist -->
+                        <div class="section-panel" style="margin: 0; padding: 24px;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text); border-bottom: 1px solid rgba(148,163,184,0.12); padding-bottom: 12px; margin-bottom: 16px;">
+                                <i class="fa-regular fa-folder-open" style="margin-right: 8px; color: var(--primary);"></i> Submitted Documents
+                            </h4>
+                            <div style="margin-top: 14px;">
+                                <div class="admin-docs-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                                    {% if application.parsed_documents %}
+                                        {% for doc_name, doc_url in application.parsed_documents.items() %}
+                                            <div class="admin-doc-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(241, 245, 249, 0.4); border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.01); transition: background 0.2s;">
+                                                <span style="font-size: 0.85rem; font-weight: 600; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;" title="{{ doc_name }}">{{ doc_name }}</span>
+                                                <a href="{{ doc_url }}" target="_blank" class="button secondary small" style="padding: 6px 14px; font-size: 0.78rem; margin: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 999px; font-weight: 700; color: #2563eb; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">Show</a>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div style="color: #94a3b8; font-size: 0.88rem; padding: 10px 0; text-align: center;">No documents submitted.</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+{% endblock %}

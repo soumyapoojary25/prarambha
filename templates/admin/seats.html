@@ -1,0 +1,143 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'seats' %}
+
+{% block title %}Prarambha Admin - Seat Allocation{% endblock %}
+
+{% block content %}
+            <div class="admin-topbar">
+                <div>
+                    <h2>Seat Allocation Management</h2>
+                    <p>Manage and monitor seat capacities across all courses and specializations.</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="seat-map-panel" style="margin-bottom: 24px;">
+                <div class="seat-map-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="seat-map-title">
+                        <h3><i class="fas fa-th-large" style="color: var(--primary); margin-right: 8px;"></i> Course Seat Overview</h3>
+                        <p>Current distribution of filled and remaining seats.</p>
+                    </div>
+                </div>
+
+                <div class="allotment-courses-grid">
+                    {% for course_key in ['BCA', 'BCom', 'BBA'] %}
+                        {% set cs = course_seats | selectattr('course_name', 'equalto', course_key) | list | first %}
+                        {% if cs %}
+                        <!-- ── {{ course_key }} ── -->
+                        <div class="allotment-course-card {{ course_key | lower }}">
+                            <div class="allotment-course-header">
+                                <div class="allotment-course-icon">
+                                    {% if course_key == 'BCA' %}
+                                    <i class="fas fa-laptop-code"></i>
+                                    {% elif course_key == 'BCom' %}
+                                    <i class="fas fa-chart-line"></i>
+                                    {% else %}
+                                    <i class="fas fa-briefcase"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="allotment-course-name">{{ course_key }}</div>
+                                    <div class="allotment-course-sub">
+                                        {% if course_key == 'BCA' %}Bachelor of Computer Applications{% elif course_key == 'BCom' %}Bachelor of Commerce{% else %}Bachelor of Business Administration{% endif %}
+                                    </div>
+                                </div>
+                                <div class="allotment-course-total">
+                                    <span class="allotment-filled">{{ cs.filled_seats }}</span>
+                                    <span class="allotment-slash">/</span>
+                                    <span class="allotment-total-num">{{ cs.total_seats }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress bar and spec listing -->
+                            {% set percent = ((cs.filled_seats / cs.total_seats) * 100) | round | int if cs.total_seats > 0 else 0 %}
+                            <div style="margin-top: 4px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px;">
+                                    <span>Occupancy</span>
+                                    <span>{{ percent }}%</span>
+                                </div>
+                                <div class="capacity-bar-bg" style="height: 6px;">
+                                    {% set bar_color = '#3b82f6' if course_key == 'BCA' else ('#10b981' if course_key == 'BCom' else '#f59e0b') %}
+                                    <div class="capacity-bar green" style="width: {{ percent }}%; background: {{ bar_color }};"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="allotment-spec-grid">
+                                {% for ss in spec_seats if ss.course_name == course_key %}
+                                <a href="{{ url_for('admin.course_spec_detail', course=course_key, spec_name=ss.spec_name) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
+                                    <div class="allotment-spec-label">{{ ss.spec_name }}</div>
+                                    <div class="allotment-spec-seats">
+                                        <i class="fas fa-chair" style="margin-right: 4px;"></i> <span>{{ ss.filled_seats }} / {{ ss.total_seats }}</span>
+                                    </div>
+                                    <div class="allotment-spec-arrow"><i class="fas fa-arrow-right"></i></div>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="section-panel" style="margin-bottom: 24px;">
+                <div class="section-header">
+                    <div>
+                        <h3>Manage Seat Capacities</h3>
+                        <p>Adjust total seat limits for courses and their specializations.</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('admin.seats') }}" style="margin-top: 1rem;">
+                    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem;">
+                        {% for course_key in ['BCA', 'BCom', 'BBA'] %}
+                            {% set cs = course_seats | selectattr('course_name', 'equalto', course_key) | list | first %}
+                            {% if cs %}
+                            <div style="background: rgba(0,0,0,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--surface-border);">
+                                <h4 style="margin-bottom: 1rem; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                                    {{ course_key }}
+                                    <span style="font-size: 0.75rem; background: var(--primary-soft); padding: 0.2rem 0.5rem; border-radius: 4px;">Total Seats</span>
+                                </h4>
+                                
+                                <div class="form-group" style="margin-bottom: 1.25rem;">
+                                    <label class="form-label">Overall {{ course_key }} Capacity</label>
+                                    <input type="number" name="course_{{ course_key }}" value="{{ cs.total_seats }}" class="form-control" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--surface-border);" min="{{ cs.filled_seats }}">
+                                    <div style="font-size: 0.7rem; color: var(--muted); margin-top: 4px;">Currently filled: {{ cs.filled_seats }}</div>
+                                </div>
+
+                                <div style="height: 1px; background: var(--surface-border); margin: 1rem 0;"></div>
+                                
+                                <h5 style="margin-bottom: 0.75rem; color: var(--text); font-size: 0.85rem;">Specialization Capacities</h5>
+                                
+                                <div style="display: grid; gap: 0.75rem;">
+                                    {% for ss in spec_seats if ss.course_name == course_key %}
+                                    <div class="form-group">
+                                        <label class="form-label" style="font-size: 0.75rem; color: var(--muted);">{{ ss.spec_name }}</label>
+                                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                            <input type="number" name="spec_{{ ss.id }}" value="{{ ss.total_seats }}" class="form-control" style="width: 100%; padding: 0.45rem; border-radius: 6px; border: 1px solid var(--surface-border); font-size: 0.85rem;" min="{{ ss.filled_seats }}">
+                                            <span style="font-size: 0.7rem; color: var(--text); white-space: nowrap; width: 60px;">(Filled: {{ ss.filled_seats }})</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+                        <button type="submit" class="button primary" style="padding: 12px 24px; font-weight: 600; font-size: 0.9rem; border-radius: 10px; background: var(--primary); color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
+                            <i class="fas fa-save" style="margin-right: 6px;"></i> Save Allocations
+                        </button>
+                    </div>
+                </form>
+            </div>
+{% endblock %}

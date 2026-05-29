@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Prarambha Admin{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <div class="brand-mark">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="brand-copy">
+                    <h1>Prarambha</h1>
+                    <p>University ERP</p>
+                </div>
+            </div>
+            
+            <nav class="admin-nav">
+                <div class="nav-section-label">MAIN</div>
+                <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if active_page == 'dashboard' else '' }}">
+                    <span class="nav-icon-wrapper"><i class="fas fa-chart-pie"></i></span> Dashboard
+                </a>
+                <a href="{{ url_for('admin.applications') }}" class="{{ 'active' if active_page == 'applications' else '' }}">
+                    <span class="nav-icon-wrapper"><i class="fas fa-file-invoice"></i></span> Applications
+                </a>
+                <a href="{{ url_for('admin.students') }}" class="{{ 'active' if active_page == 'students' else '' }}">
+                    <span class="nav-icon-wrapper"><i class="fas fa-user-graduate"></i></span> Students
+                </a>
+
+                <div class="nav-section-label">MANAGEMENT</div>
+                <a href="{{ url_for('admin.dashboard') }}#courses-section" class="nav-anchor-link">
+                    <span class="nav-icon-wrapper"><i class="fas fa-book-open"></i></span> Courses
+                </a>
+                <a href="{{ url_for('admin.seats') }}" class="{{ 'active' if active_page == 'seats' else '' }}">
+                    <span class="nav-icon-wrapper"><i class="fas fa-th"></i></span> Seat Allocation
+                </a>
+                <a href="{{ url_for('admin.dashboard') }}#analytics-section" class="nav-anchor-link">
+                    <span class="nav-icon-wrapper"><i class="fas fa-chart-line"></i></span> Analytics
+                </a>
+
+                <div class="nav-section-label">SYSTEM</div>
+                <a href="{{ url_for('admin.profile') }}" class="{{ 'active' if active_page == 'profile' else '' }}">
+                    <span class="nav-icon-wrapper"><i class="fas fa-cog"></i></span> Settings
+                </a>
+            </nav>
+            
+            <div class="admin-sidebar-footer">
+                <a href="{{ url_for('admin.logout') }}" class="action-button danger logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Standard Confirm Dialog -->
+    <div id="custom-confirm-modal" class="messagebox-overlay">
+        <div class="messagebox-box">
+            <div class="messagebox-header">
+                <span class="messagebox-title">Prarambha</span>
+                <button type="button" class="messagebox-close" id="confirm-cancel-btn-x">&times;</button>
+            </div>
+            <div class="messagebox-body">
+                <div class="messagebox-message">Are you sure you want to reject this applicant?</div>
+            </div>
+            <div class="messagebox-footer">
+                <button type="button" class="messagebox-btn ok" id="confirm-ok-btn">OK</button>
+                <button type="button" class="messagebox-btn cancel" id="confirm-cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='admin/admin.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

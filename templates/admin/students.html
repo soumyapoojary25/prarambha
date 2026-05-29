@@ -1,0 +1,101 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'students' %}
+
+{% block title %}Prarambha Admin - Enrolled Students{% endblock %}
+
+{% block content %}
+            <div class="admin-topbar">
+                <div>
+                    <h2>Enrolled Students</h2>
+                    <p>Manage admitted students, view profiles, and handle seat allocations.</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="section-panel form-panel">
+                <form method="GET" class="form-row" style="grid-template-columns: 1fr 180px 140px; gap:1rem;">
+                    <div>
+                        <input name="search" type="text" value="{{ search }}" placeholder="Search by student name, email, or application no." style="width:100%;">
+                    </div>
+                    <div>
+                        <select name="course" style="width:100%;">
+                            <option value="all" {% if course_filter == 'all' or course_filter == 'ALL' %}selected{% endif %}>All courses</option>
+                            <option value="BCA" {% if course_filter == 'BCA' %}selected{% endif %}>BCA</option>
+                            <option value="BCom" {% if course_filter == 'BCom' %}selected{% endif %}>BCom</option>
+                            <option value="BBA" {% if course_filter == 'BBA' %}selected{% endif %}>BBA</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="button secondary">Filter</button>
+                </form>
+
+                <div class="section-header" style="margin-top:1.5rem;">
+                    <div>
+                        <h3>Enrolled Students: {{ total }}</h3>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Sl. No.</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Course</th>
+                                <th>Admission Date</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if students %}
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ ((page - 1) * 12) + loop.index }}</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div class="profile-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%;">
+                                                {{ student.fullname[0] | upper }}
+                                            </div>
+                                            <strong>{{ student.fullname }}</strong>
+                                        </div>
+                                    </td>
+                                    <td>{{ student.email }}</td>
+                                    <td>{{ student.course or 'N/A' }}</td>
+                                    <td>{{ student.created_at.split('T')[0] if 'T' in student.created_at else student.created_at.split(' ')[0] }}</td>
+                                    <td style="display: flex; gap: 0.5rem; align-items: center; justify-content: flex-end;">
+                                        <a href="{{ url_for('admin.application_detail', application_id=student.id) }}" class="action-button secondary" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border-radius: 10px;">
+                                            <i class="fas fa-user-circle"></i> Profile
+                                        </a>
+                                        
+                                        <form action="{{ url_for('admin.application_quick_action', application_id=student.id, action_type='reject') }}" method="POST" style="margin:0;" class="reject-form">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="action-button" style="background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight:600; cursor:pointer; border-radius: 10px;" title="Revoke Admission">
+                                                <i class="fas fa-ban"></i> Revoke
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="6" class="empty-row" style="text-align: center;">No enrolled students found.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="application-actions">
+                    {% for p in range(1, total_pages + 1) %}
+                        <a href="{{ url_for('admin.students', page=p, search=search, course=course_filter) }}" class="action-button secondary" style="font-weight: {% if p == page %}700{% endif %};">{{ p }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+{% endblock %}

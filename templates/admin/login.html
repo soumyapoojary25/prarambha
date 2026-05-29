@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – Prarambha University ERP</title>
+    <meta name="description" content="Secure admin login for Prarambha Student Admission & Seat Management System">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/login.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-split">
+
+        <!-- ═══ LEFT PANEL: Branding & Showcase ═══ -->
+        <div class="login-brand-panel">
+            <!-- Animated mesh blobs -->
+            <div class="mesh-blob blob-1"></div>
+            <div class="mesh-blob blob-2"></div>
+            <div class="mesh-blob blob-3"></div>
+
+            <!-- Floating particles -->
+            <div class="particles">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <div class="brand-content">
+                <!-- Logo -->
+                <div class="brand-logo-ring">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+
+                <h1 class="brand-heading">PRARAMBHA</h1>
+                <p class="brand-tagline">Student Admission & Seat Management System</p>
+                <p class="brand-description">Modern digital admission platform for seamless university enrollment and realtime seat allocation.</p>
+
+                <!-- Floating stat pills -->
+                <div class="brand-stats-row">
+                    <div class="brand-stat-pill">
+                        <i class="fas fa-file-invoice"></i>
+                        <div>
+                            <strong>12K+</strong>
+                            <span>Applications</span>
+                        </div>
+                    </div>
+                    <div class="brand-stat-pill">
+                        <i class="fas fa-bullseye"></i>
+                        <div>
+                            <strong>98%</strong>
+                            <span>Accuracy</span>
+                        </div>
+                    </div>
+                    <div class="brand-stat-pill">
+                        <i class="fas fa-satellite-dish"></i>
+                        <div>
+                            <strong>Live</strong>
+                            <span>Seat Tracking</span>
+                        </div>
+                    </div>
+                    <div class="brand-stat-pill">
+                        <i class="fas fa-shield-halved"></i>
+                        <div>
+                            <strong>24/7</strong>
+                            <span>Secure Access</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Glass dashboard mockup card -->
+                <div class="brand-mockup-card">
+                    <div class="mockup-topbar">
+                        <div class="mockup-dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="mockup-url">prarambha.edu.in/admin</span>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="mockup-sidebar-mini"></div>
+                        <div class="mockup-content-mini">
+                            <div class="mockup-stat-bar"></div>
+                            <div class="mockup-stat-bar short"></div>
+                            <div class="mockup-chart-area">
+                                <div class="mockup-bar" style="height: 40%;"></div>
+                                <div class="mockup-bar" style="height: 65%;"></div>
+                                <div class="mockup-bar" style="height: 85%;"></div>
+                                <div class="mockup-bar" style="height: 55%;"></div>
+                                <div class="mockup-bar" style="height: 72%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ RIGHT PANEL: Login Form ═══ -->
+        <div class="login-form-panel">
+            <div class="login-card">
+                <!-- Secure badge -->
+                <div class="secure-badge">
+                    <i class="fas fa-lock"></i> Secure Admin Access
+                </div>
+
+                <!-- Logo + Heading -->
+                <div class="login-header">
+                    <div class="login-logo-ring">
+                        <div class="login-logo-inner">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                    </div>
+                    <h2 class="login-heading">Welcome Back 👋</h2>
+                    <p class="login-subtext">Login to continue managing student admissions and realtime seat allocations.</p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages-wrapper">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ 'danger' if category == 'danger' else 'success' }}">
+                                {% if category == 'danger' %}
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-check"></i>
+                                {% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% endwith %}
+
+                <!-- Login Form -->
+                <form method="POST" id="login-form" class="login-form" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="form-label" for="email">Admin Email</label>
+                        <div class="input-container">
+                            <span class="input-icon"><i class="far fa-envelope"></i></span>
+                            <input type="email" id="email" name="email" class="form-input" value="{{ email }}" required placeholder="admin@prarambha.edu.in" autocomplete="email">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="input-container">
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
+                            <input type="password" id="password" name="password" class="form-input" required placeholder="Enter password" autocomplete="current-password">
+                            <button type="button" id="toggle-password" class="password-toggle-btn" aria-label="Toggle password visibility">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Options row -->
+                    <div class="form-actions-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember" id="remember">
+                            <span class="custom-check"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" id="submit-btn" class="submit-button">
+                        <span class="btn-text-content">LOGIN TO DASHBOARD</span>
+                        <span class="btn-arrow"><i class="fas fa-arrow-right"></i></span>
+                        <div class="btn-loading-spinner"></div>
+                    </button>
+                </form>
+
+                <!-- Security footer -->
+                <div class="security-footer">
+                    <i class="fas fa-shield-halved"></i>
+                    <div>
+                        <span>Protected with encrypted admin authentication</span>
+                        <span class="sec-sub">Authorized personnel only</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="login-copy">&copy; 2026 Prarambha University. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='admin/login.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application #{{ app.application_no }} – Dr. B. B. Hegde College</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="form-header">
+            <div class="header-badge">
+                <div class="badge-ring"></div>
+                <div class="badge-text">BBH</div>
+            </div>
+            <div class="header-text">
+                <h1>Dr. B. B. Hegde First Grade College</h1>
+                <p class="address">KUNDAPURA - 576201, Udupi Dist.</p>
+            </div>
+        </header>
+
+        <div class="form-title-bar">
+            <h2>Application Details</h2>
+            <div class="app-no-display">
+                <span class="app-label">APPLICATION NO.</span>
+                <span class="app-value">{{ app.application_no }}</span>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <a href="{{ url_for('applications') }}" class="nav-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Detail Cards -->
+        <div class="detail-grid">
+            <!-- Personal Details -->
+            <div class="detail-card glass-card">
+                <div class="detail-card-header">
+                    <div class="section-number small">01</div>
+                    <h3>Personal Details</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value">{{ app.name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Gender</span>
+                    <span class="detail-value">{{ app.gender }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date of Birth</span>
+                    <span class="detail-value">{{ app.dob_date }}/{{ app.dob_month }}/{{ app.dob_year }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">WhatsApp</span>
+                    <span class="detail-value">{{ app.whatsapp }}</span>
+                </div>
+            </div>
+
+            <!-- Identification -->
+            <div class="detail-card glass-card">
+                <div class="detail-card-header">
+                    <div class="section-number small">04</div>
+                    <h3>Identification</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Nationality</span>
+                    <span class="detail-value">{{ app.nationality }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Blood Group</span>
+                    <span class="detail-value">{{ app.blood_group or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">{{ app.email }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Aadhar No.</span>
+                    <span class="detail-value">{{ app.aadhar or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">PAN</span>
+                    <span class="detail-value">{{ app.pan or '—' }}</span>
+                </div>
+            </div>
+
+            <!-- Place of Birth -->
+            <div class="detail-card glass-card">
+                <div class="detail-card-header">
+                    <div class="section-number small">05</div>
+                    <h3>Place of Birth</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Village</span>
+                    <span class="detail-value">{{ app.village or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Taluk</span>
+                    <span class="detail-value">{{ app.taluk or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">District</span>
+                    <span class="detail-value">{{ app.district or '—' }}</span>
+                </div>
+            </div>
+
+            <!-- Religion & Category -->
+            <div class="detail-card glass-card">
+                <div class="detail-card-header">
+                    <div class="section-number small">06</div>
+                    <h3>Religion & Category</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Religion</span>
+                    <span class="detail-value">{{ app.religion }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Caste & Sub Caste</span>
+                    <span class="detail-value">{{ app.caste }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Category</span>
+                    <span class="detail-value"><span class="category-tag">{{ app.category or '—' }}</span></span>
+                </div>
+            </div>
+
+            <!-- Parent / Guardian -->
+            <div class="detail-card glass-card full-width">
+                <div class="detail-card-header">
+                    <div class="section-number small">08</div>
+                    <h3>Parent / Guardian Information</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Parent/Guardian Name</span>
+                    <span class="detail-value">{{ app.parent_name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Occupation</span>
+                    <span class="detail-value">{{ app.occupation or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value">{{ app.parent_phone or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Annual Income</span>
+                    <span class="detail-value">₹ {{ app.annual_income or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Postal Address</span>
+                    <span class="detail-value">{{ app.postal_address or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Permanent Address</span>
+                    <span class="detail-value">{{ app.permanent_address or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">PIN Code</span>
+                    <span class="detail-value">{{ app.pin_code or '—' }}</span>
+                </div>
+            </div>
+
+            <!-- Program & Language -->
+            <div class="detail-card glass-card">
+                <div class="detail-card-header">
+                    <div class="section-number small">09</div>
+                    <h3>Program & Language</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Program(s)</span>
+                    <span class="detail-value">{{ app.program or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Second Language</span>
+                    <span class="detail-value">{{ app.second_language or '—' }}</span>
+                </div>
+            </div>
+
+            <!-- Educational Qualification -->
+            <div class="detail-card glass-card">
+                <div class="detail-card-header">
+                    <div class="section-number small">10</div>
+                    <h3>Educational Qualification</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Last College</span>
+                    <span class="detail-value">{{ app.college_attended }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">First Year PUC</span>
+                    <span class="detail-value">{{ app.first_puc or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Second Year PUC</span>
+                    <span class="detail-value">{{ app.second_puc or '—' }}</span>
+                </div>
+            </div>
+
+            <!-- Qualifying Exam Details -->
+            <div class="detail-card glass-card">
+                <div class="detail-card-header">
+                    <div class="section-number small">11</div>
+                    <h3>Qualifying Exam Details</h3>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Examination Name</span>
+                    <span class="detail-value">{{ app.qual_exam_name or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Register No.</span>
+                    <span class="detail-value">{{ app.qual_exam_reg_no or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Marks Obtained</span>
+                    <span class="detail-value">{{ app.qual_exam_marks_obtained or '—' }} / {{ app.qual_exam_max_marks or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Percentage</span>
+                    <span class="detail-value">{{ app.qual_exam_percentage or '—' }}</span>
+                </div>
+            </div>
+
+            <!-- Submitted Documents -->
+            <div class="detail-card glass-card full-width">
+                <div class="detail-card-header">
+                    <div class="section-number small">12</div>
+                    <h3>Submitted Documents</h3>
+                </div>
+                <div class="detail-row" style="display: flex; flex-direction: column; gap: 12px; align-items: stretch; border: none; padding-top: 10px;">
+                    {% if app.parsed_documents %}
+                        <div class="docs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; width: 100%;">
+                            {% for doc_name, doc_url in app.parsed_documents.items() %}
+                                <div class="doc-card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.16); background: rgba(255,255,255,0.92); box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color: var(--primary); flex-shrink: 0;">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                        </svg>
+                                        <span style="font-weight: 600; font-size: 0.9rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ doc_name }}</span>
+                                    </div>
+                                    <a href="{{ doc_url }}" target="_blank" class="doc-btn show-btn" style="margin: 0; padding: 8px 16px; text-decoration: none; font-size: 0.82rem;">Show</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div style="color: var(--muted); font-size: 0.95rem; text-align: center; padding: 20px; width: 100%;">No documents uploaded.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Print Button -->
+        <div class="form-actions">
+            <button onclick="window.print()" class="submit-btn" style="max-width:240px;">
+                <span class="btn-text">Print Application</span>
+                <span class="btn-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                </span>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
