@@ -12,7 +12,13 @@ app = Flask(__name__)
 app.secret_key = 'prarambha_admin_secret_2026'
 app.register_blueprint(admin_bp)
 
-DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
+# Automatically initialize database for Vercel environments (Serverless)
+init_db()
+
+if os.environ.get('VERCEL') == '1':
+    DATABASE = '/tmp/admissions.db'
+else:
+    DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
 
 def get_db():
     conn = sqlite3.connect(DATABASE)

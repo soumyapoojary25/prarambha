@@ -13,7 +13,10 @@ ADMIN_PASSWORD_HASH = os.environ.get(
     'PRARAMBHA_ADMIN_PASSWORD_HASH',
     generate_password_hash('Admin@123')
 )
-DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
+if os.environ.get('VERCEL') == '1':
+    DATABASE_PATH = '/tmp/admissions.db'
+else:
+    DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 

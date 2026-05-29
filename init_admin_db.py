@@ -1,7 +1,10 @@
 import sqlite3
 import os
 
-DATABASE = 'admissions.db'
+if os.environ.get('VERCEL') == '1':
+    DATABASE = '/tmp/admissions.db'
+else:
+    DATABASE = 'admissions.db'
 
 def init_db():
     conn = sqlite3.connect(DATABASE)
@@ -13,6 +16,55 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
+        )
+    ''')
+
+    # 1.5 Applications Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS applications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            application_no TEXT UNIQUE,
+            name TEXT,
+            whatsapp TEXT,
+            gender TEXT,
+            dob_date TEXT,
+            dob_month TEXT,
+            dob_year TEXT,
+            nationality TEXT,
+            email TEXT,
+            aadhar TEXT,
+            blood_group TEXT,
+            pan TEXT,
+            village TEXT,
+            taluk TEXT,
+            district TEXT,
+            religion TEXT,
+            caste TEXT,
+            category TEXT,
+            parent_name TEXT,
+            occupation TEXT,
+            postal_address TEXT,
+            parent_phone TEXT,
+            annual_income TEXT,
+            permanent_address TEXT,
+            pin_code TEXT,
+            program TEXT,
+            second_language TEXT,
+            status TEXT DEFAULT 'pending',
+            course TEXT,
+            approved_at TEXT,
+            college_attended TEXT,
+            first_puc TEXT,
+            second_puc TEXT,
+            qual_exam_name TEXT,
+            qual_exam_reg_no TEXT,
+            qual_exam_year TEXT,
+            qual_exam_board TEXT,
+            qual_exam_marks_obtained TEXT,
+            qual_exam_max_marks TEXT,
+            qual_exam_percentage TEXT,
+            submitted_documents TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 
