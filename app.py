@@ -8,14 +8,47 @@ from werkzeug.utils import secure_filename
 from init_admin_db import init_db
 from admin import admin_bp
 
+
+def is_vercel():
+    return bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+
+
 app = Flask(__name__)
-app.secret_key = 'prarambha_admin_secret_2026'
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'prarambha_admin_secret_2026')
 app.register_blueprint(admin_bp)
 
-# Automatically initialize database for Vercel environments (Serverless)
-init_db()
 
-if os.environ.get('VERCEL') == '1':
+class _VercelPathMiddleware:
+    """Strip serverless path prefixes so Flask routes match on Vercel."""
+
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+        self._prefixes = ('/api/index', '/api')
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO') or ''
+        for prefix in self._prefixes:
+            if path == prefix or path.startswith(prefix + '/'):
+                environ['PATH_INFO'] = path[len(prefix):] or '/'
+                break
+        return self.wsgi_app(environ, start_response)
+
+
+if is_vercel():
+    try:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+    except ImportError:
+        pass
+    app.wsgi_app = _VercelPathMiddleware(app.wsgi_app)
+
+# Initialize database (ephemeral /tmp on Vercel)
+try:
+    init_db()
+except Exception as e:
+    print(f'init_db warning: {e}')
+
+if is_vercel():
     DATABASE = '/tmp/admissions.db'
 else:
     DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
@@ -26,6 +59,12 @@ def get_db():
     return conn
 
 # --- USER SIDE ROUTES ---
+
+@app.route('/health')
+def health():
+    """Deployment health check (use /health on Vercel to verify the app is running)."""
+    return jsonify({'status': 'ok', 'service': 'prarambha-admissions'}), 200
+
 
 @app.route('/')
 def index():

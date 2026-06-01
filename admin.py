@@ -13,7 +13,11 @@ ADMIN_PASSWORD_HASH = os.environ.get(
     'PRARAMBHA_ADMIN_PASSWORD_HASH',
     generate_password_hash('Admin@123')
 )
-if os.environ.get('VERCEL') == '1':
+def is_vercel():
+    return bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+
+
+if is_vercel():
     DATABASE_PATH = '/tmp/admissions.db'
 else:
     DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')

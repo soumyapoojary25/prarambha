@@ -1,10 +1,15 @@
 import sqlite3
 import os
 
-if os.environ.get('VERCEL') == '1':
+
+def is_vercel():
+    return bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+
+
+if is_vercel():
     DATABASE = '/tmp/admissions.db'
 else:
-    DATABASE = 'admissions.db'
+    DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
 
 def init_db():
     conn = sqlite3.connect(DATABASE)

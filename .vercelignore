@@ -1,0 +1,14 @@
+# Legacy static duplicate (removed from repo)
+index.html
+
+# Local / dev only
+.venv/
+__pycache__/
+*.pyc
+*.db
+.env
+.gemini/
+scratch/
+
+# Large upload samples — not needed on serverless (storage is ephemeral)
+static/uploads/
