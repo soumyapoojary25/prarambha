@@ -28,7 +28,16 @@ app = Flask(__name__,
             static_url_path='/static',
             template_folder=TEMPLATES_DIR)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'prarambha_admin_secret_2026')
-app.register_blueprint(admin_bp)
+
+# Register admin blueprint with error handling
+try:
+    app.register_blueprint(admin_bp)
+    logger.info("Admin blueprint registered successfully")
+except Exception as e:
+    logger.error(f"Failed to register admin blueprint: {str(e)}")
+    import traceback
+    logger.error(traceback.format_exc())
+    raise
 
 # Error handlers for debugging
 @app.before_request
@@ -38,12 +47,14 @@ def log_request():
 @app.errorhandler(404)
 def handle_404(e):
     logger.error(f"404 Error: {request.path} - {str(e)}")
-    return render_template('index.html'), 404
+    return jsonify({'error': 'Not found'}), 404
 
 @app.errorhandler(500)
 def handle_500(e):
-    logger.error(f"500 Error: {request.path} - {str(e)}")
-    return jsonify({'error': 'Internal server error'}), 500
+    logger.error(f"500 Error on {request.method} {request.path}: {str(e)}")
+    import traceback
+    logger.error(traceback.format_exc())
+    return jsonify({'error': str(e)}), 500
 
 
 class _VercelPathMiddleware:

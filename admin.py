@@ -175,10 +175,10 @@ def login_required(view):
     return wrapped
 
 
-@admin_bp.before_app_request
+@admin_bp.before_request
 def _ensure_admin_schema():
-    if request.path.startswith('/admin'):
-        ensure_admin_columns()
+    """Ensure admin schema columns exist when admin routes are accessed."""
+    ensure_admin_columns()
 
 
 @admin_bp.app_context_processor
