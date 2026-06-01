@@ -55,19 +55,22 @@ def handle_exception(e):
     import traceback
     logger.error(f"Exception on {request.method} {request.path}: {str(e)}")
     logger.error(traceback.format_exc())
-    return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
+    # Don't include exception details in response for security
+    return jsonify({'error': 'Internal server error', 'status': 500}), 500
 
 @app.errorhandler(404)
 def handle_404(e):
-    logger.error(f"404 Error: {request.path} - {str(e)}")
-    return jsonify({'error': 'Not found'}), 404
+    """Handle 404 errors."""
+    logger.error(f"404 Error: {request.path}")
+    return jsonify({'error': 'Not found', 'status': 404}), 404
 
 @app.errorhandler(500)
 def handle_500(e):
+    """Handle 500 errors."""
     logger.error(f"500 Error on {request.method} {request.path}: {str(e)}")
     import traceback
     logger.error(traceback.format_exc())
-    return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Internal server error', 'status': 500}), 500
 
 
 class _VercelPathMiddleware:
