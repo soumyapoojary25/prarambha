@@ -141,38 +141,54 @@ def health():
 
 @app.route('/')
 def index():
-    app_id = request.args.get('id')
-    application = None
-    app_no = None
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    if app_id:
-        try:
-            cursor.execute('SELECT * FROM applications WHERE id = ?', (int(app_id),))
-            row = cursor.fetchone()
-            if row:
-                application = dict(row)
-                app_no = application['application_no']
-                # Parse submitted_documents
-                docs = {}
-                if application.get('submitted_documents'):
-                    try:
-                        docs = json.loads(application['submitted_documents'])
-                    except Exception:
-                        pass
-                application['parsed_documents'] = docs
-        except Exception as e:
-            print("Error loading application for editing:", e)
-            
-    if not app_no:
-        cursor.execute('SELECT MAX(CAST(application_no AS INTEGER)) FROM applications')
-        result = cursor.fetchone()[0]
-        app_no = '1' if (result is None or result < 1) else str(result + 1)
+    """Main application form page."""
+    try:
+        app_id = request.args.get('id')
+        application = None
+        app_no = None
         
-    conn.close()
-    return render_template('index.html', app_no=app_no, application=application)
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            
+            if app_id:
+                try:
+                    cursor.execute('SELECT * FROM applications WHERE id = ?', (int(app_id),))
+                    row = cursor.fetchone()
+                    if row:
+                        application = dict(row)
+                        app_no = application['application_no']
+                        # Parse submitted_documents
+                        docs = {}
+                        if application.get('submitted_documents'):
+                            try:
+                                docs = json.loads(application['submitted_documents'])
+                            except Exception:
+                                pass
+                        application['parsed_documents'] = docs
+                except Exception as e:
+                    logger.error(f"Error loading application: {str(e)}")
+                
+            if not app_no:
+                cursor.execute('SELECT MAX(CAST(application_no AS INTEGER)) FROM applications')
+                result = cursor.fetchone()
+                if result and result[0]:
+                    app_no = str(int(result[0]) + 1)
+                else:
+                    app_no = '1'
+                
+            conn.close()
+        except Exception as e:
+            logger.error(f"Database error in index route: {str(e)}")
+            app_no = '1'
+            application = None
+        
+        return render_template('index.html', app_no=app_no, application=application)
+    except Exception as e:
+        logger.error(f"Error in index route: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({'error': 'Error loading application form', 'status': 500}), 500
 
 DOC_MAP = {
     'document_sslc_upload': 'Original SSLC Marks Card',
