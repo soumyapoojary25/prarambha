@@ -43,19 +43,29 @@ except Exception as e:
     logger.error(traceback.format_exc())
     raise
 
-# Request logging
+# Request logging with full error capture
 @app.before_request
 def log_request():
     logger.info(f"Request: {request.method} {request.path}")
+
+@app.after_request
+def log_response(response):
+    if response.status_code >= 400:
+        logger.error(f"Response {response.status_code} for {request.method} {request.path}")
+    return response
 
 # Error handlers for debugging
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Handle all exceptions and log them."""
     import traceback
-    logger.error(f"Exception on {request.method} {request.path}: {str(e)}")
-    logger.error(traceback.format_exc())
-    # Don't include exception details in response for security
+    import sys
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    logger.error(f"EXCEPTION: {type(e).__name__}: {str(e)}")
+    logger.error("Full traceback:")
+    for line in traceback.format_exception(exc_type, exc_value, exc_traceback):
+        logger.error(line.rstrip())
+    # Return clean error
     return jsonify({'error': 'Internal server error', 'status': 500}), 500
 
 @app.errorhandler(404)
@@ -67,9 +77,12 @@ def handle_404(e):
 @app.errorhandler(500)
 def handle_500(e):
     """Handle 500 errors."""
-    logger.error(f"500 Error on {request.method} {request.path}: {str(e)}")
     import traceback
-    logger.error(traceback.format_exc())
+    import sys
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    logger.error(f"500 ERROR: {type(e).__name__}: {str(e)}")
+    for line in traceback.format_exception(exc_type, exc_value, exc_traceback):
+        logger.error(line.rstrip())
     return jsonify({'error': 'Internal server error', 'status': 500}), 500
 
 

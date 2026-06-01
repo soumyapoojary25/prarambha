@@ -290,104 +290,128 @@ def process_app_row(row):
 @admin_bp.route('/seats', methods=['GET', 'POST'])
 @login_required
 def seats():
-    conn = get_db()
-    
-    if request.method == 'POST':
-        # Handle seat update logic if they submit the update form
-        # We will parse the form data and update the tables
-        for key, value in request.form.items():
-            if key.startswith('course_'):
-                course_name = key.split('_')[1]
-                new_total = int(value)
-                conn.execute('UPDATE course_seats SET total_seats = ? WHERE course_name = ?', (new_total, course_name))
-            elif key.startswith('spec_'):
-                spec_id = int(key.split('_')[1])
-                new_total = int(value)
-                conn.execute('UPDATE specialization_seats SET total_seats = ? WHERE id = ?', (new_total, spec_id))
+    try:
+        conn = get_db()
         
-        conn.commit()
-        flash('Seat allocations updated successfully.', 'success')
-        return redirect(url_for('admin.seats'))
+        if request.method == 'POST':
+            # Handle seat update logic if they submit the update form
+            try:
+                for key, value in request.form.items():
+                    if key.startswith('course_'):
+                        course_name = key.split('_')[1]
+                        new_total = int(value)
+                        conn.execute('UPDATE course_seats SET total_seats = ? WHERE course_name = ?', (new_total, course_name))
+                    elif key.startswith('spec_'):
+                        spec_id = int(key.split('_')[1])
+                        new_total = int(value)
+                        conn.execute('UPDATE specialization_seats SET total_seats = ? WHERE id = ?', (new_total, spec_id))
+                
+                conn.commit()
+                flash('Seat allocations updated successfully.', 'success')
+                conn.close()
+                return redirect(url_for('admin.seats'))
+            except Exception as e:
+                conn.rollback()
+                logger = __import__('logging').getLogger(__name__)
+                logger.error(f"Error updating seats: {str(e)}")
+                flash('Error updating seats. Please try again.', 'error')
+                conn.close()
+                return redirect(url_for('admin.seats'))
 
-    course_seats = [dict(r) for r in conn.execute('SELECT * FROM course_seats').fetchall()]
-    spec_seats = [dict(r) for r in conn.execute('SELECT * FROM specialization_seats ORDER BY course_name, id').fetchall()]
-    conn.close()
-    
-    return render_template('admin/seats.html', course_seats=course_seats, spec_seats=spec_seats)
+        course_seats = [dict(r) for r in conn.execute('SELECT * FROM course_seats').fetchall()]
+        spec_seats = [dict(r) for r in conn.execute('SELECT * FROM specialization_seats ORDER BY course_name, id').fetchall()]
+        conn.close()
+        
+        return render_template('admin/seats.html', course_seats=course_seats, spec_seats=spec_seats)
+    except Exception as e:
+        logger = __import__('logging').getLogger(__name__)
+        logger.error(f"Error in seats route: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        flash('An error occurred. Please try again.', 'error')
+        return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
-    conn = get_db()
-    stats = {
-        'total': conn.execute('SELECT COUNT(*) FROM applications').fetchone()[0],
-        'approved': conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'approved'").fetchone()[0],
-        'rejected': conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'rejected'").fetchone()[0],
-        'pending': conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'pending'").fetchone()[0],
-    }
-    
-    # Process recent applications
-    raw_recent = conn.execute('SELECT * FROM applications ORDER BY rowid DESC LIMIT 6').fetchall()
-    recent_apps = [process_app_row(r) for r in raw_recent]
-    
-    # Course seats analytics
-    course_seats = [dict(r) for r in conn.execute('SELECT * FROM course_seats').fetchall()]
-    spec_seats = [dict(r) for r in conn.execute('SELECT * FROM specialization_seats').fetchall()]
-    
-    # Selected course for visual seat grid
-    grid_course_raw = request.args.get('grid_course', 'BCA').strip().upper()
-    if grid_course_raw == 'BCOM':
-        grid_course = 'BCom'
-    elif grid_course_raw in ('BCA', 'BBA'):
-        grid_course = grid_course_raw
-    else:
-        grid_course = 'BCA'
+    try:
+        conn = get_db()
+        stats = {
+            'total': conn.execute('SELECT COUNT(*) FROM applications').fetchone()[0],
+            'approved': conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'approved'").fetchone()[0],
+            'rejected': conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'rejected'").fetchone()[0],
+            'pending': conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'pending'").fetchone()[0],
+        }
         
-    # Get total capacity for the selected course
-    course_capacity = 60
-    for cs in course_seats:
-        if cs['course_name'] == grid_course:
-            course_capacity = cs['total_seats']
-            break
-            
-    # Get approved students for the grid
-    approved_students = conn.execute('''
-        SELECT id, name, approved_at 
-        FROM applications 
-        WHERE course = ? AND status = 'approved' 
-        ORDER BY approved_at ASC
-    ''', (grid_course,)).fetchall()
-    
-    approved_list = [dict(s) for s in approved_students]
-    
-    # Build visual seating grid
-    seats_grid = []
-    for i in range(1, course_capacity + 1):
-        if i <= len(approved_list):
-            student = approved_list[i - 1]
-            seats_grid.append({
-                'label': f'S{i}',
-                'status': 'occupied',
-                'student_name': student['name'],
-                'student_id': student['id'],
-                'approved_at': student['approved_at']
-            })
+        # Process recent applications
+        raw_recent = conn.execute('SELECT * FROM applications ORDER BY rowid DESC LIMIT 6').fetchall()
+        recent_apps = [process_app_row(r) for r in raw_recent]
+        
+        # Course seats analytics
+        course_seats = [dict(r) for r in conn.execute('SELECT * FROM course_seats').fetchall()]
+        spec_seats = [dict(r) for r in conn.execute('SELECT * FROM specialization_seats').fetchall()]
+        
+        # Selected course for visual seat grid
+        grid_course_raw = request.args.get('grid_course', 'BCA').strip().upper()
+        if grid_course_raw == 'BCOM':
+            grid_course = 'BCom'
+        elif grid_course_raw in ('BCA', 'BBA'):
+            grid_course = grid_course_raw
         else:
-            seats_grid.append({
-                'label': f'S{i}',
-                'status': 'available'
-            })
+            grid_course = 'BCA'
             
-    conn.close()
-    return render_template(
-        'admin/dashboard.html', 
-        stats=stats, 
-        recent_apps=recent_apps,
-        course_seats=course_seats,
-        spec_seats=spec_seats,
-        grid_course=grid_course,
-        seats_grid=seats_grid
-    )
+        # Get total capacity for the selected course
+        course_capacity = 60
+        for cs in course_seats:
+            if cs['course_name'] == grid_course:
+                course_capacity = cs['total_seats']
+                break
+                
+        # Get approved students for the grid
+        approved_students = conn.execute('''
+            SELECT id, name, approved_at 
+            FROM applications 
+            WHERE course = ? AND status = 'approved' 
+            ORDER BY approved_at ASC
+        ''', (grid_course,)).fetchall()
+        
+        approved_list = [dict(s) for s in approved_students]
+        
+        # Build visual seating grid
+        seats_grid = []
+        for i in range(1, course_capacity + 1):
+            if i <= len(approved_list):
+                student = approved_list[i - 1]
+                seats_grid.append({
+                    'label': f'S{i}',
+                    'status': 'occupied',
+                    'student_name': student['name'],
+                    'student_id': student['id'],
+                    'approved_at': student['approved_at']
+                })
+            else:
+                seats_grid.append({
+                    'label': f'S{i}',
+                    'status': 'available'
+                })
+                
+        conn.close()
+        return render_template(
+            'admin/dashboard.html', 
+            stats=stats, 
+            recent_apps=recent_apps,
+            course_seats=course_seats,
+            spec_seats=spec_seats,
+            grid_course=grid_course,
+            seats_grid=seats_grid
+        )
+    except Exception as e:
+        logger = __import__('logging').getLogger(__name__)
+        logger.error(f"Error in dashboard route: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        flash('Error loading dashboard. Please try again.', 'error')
+        return redirect(url_for('admin.login'))
 
 
 @admin_bp.route('/applications')
