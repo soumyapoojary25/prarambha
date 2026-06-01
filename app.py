@@ -86,6 +86,13 @@ if is_vercel():
         pass
     app.wsgi_app = _VercelPathMiddleware(app.wsgi_app)
 
+# Serve static files with proper headers
+@app.route('/static/<path:filepath>')
+def serve_static(filepath):
+    """Serve static files with proper MIME types and caching."""
+    from flask import send_from_directory
+    return send_from_directory(app.static_folder, filepath, conditional=True)
+
 # Initialize database (ephemeral /tmp on Vercel)
 try:
     init_db()
