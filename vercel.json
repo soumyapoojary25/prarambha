@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "public": "static",
   "env": {
     "FLASK_ENV": "production"
   },
@@ -9,19 +10,13 @@
       "use": "@vercel/python",
       "config": {
         "runtime": "python3.11",
-        "maxLambdaSize": "50mb",
-        "handlers": [
-          "api/index.py"
-        ]
+        "maxLambdaSize": "50mb"
       }
     }
   ],
   "routes": [
     {
       "src": "/static/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=3600, immutable"
-      },
       "dest": "/static/$1"
     },
     {
