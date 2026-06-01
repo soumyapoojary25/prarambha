@@ -184,6 +184,14 @@ def inject_csrf_token():
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    conn = get_db()
+    total_apps = conn.execute('SELECT COUNT(*) FROM applications').fetchone()[0]
+    approved = conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'approved'").fetchone()[0]
+    rejected = conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'rejected'").fetchone()[0]
+    conn.close()
+    processed = approved + rejected
+    accuracy = int((processed / total_apps) * 100) if total_apps > 0 else 100
+
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
@@ -217,12 +225,34 @@ def login():
             session.clear()
             session['admin_authenticated'] = True
             session['admin_email'] = email
-            session.permanent = True
-            return redirect(url_for('admin.dashboard'))
+            
+            remember = request.form.get('remember') == 'on'
+            if remember:
+                session.permanent = True
+            else:
+                session.permanent = False
+
+            resp = redirect(url_for('admin.dashboard'))
+            if remember:
+                resp.set_cookie('remembered_email', email, max_age=30*24*60*60)
+                resp.set_cookie('remembered_password', password, max_age=30*24*60*60)
+            else:
+                resp.set_cookie('remembered_email', '', max_age=0)
+                resp.set_cookie('remembered_password', '', max_age=0)
+            return resp
 
         flash('Invalid email or password.', 'danger')
 
-    return render_template('admin/login.html', email=ADMIN_EMAIL)
+    email_val = request.cookies.get('remembered_email', ADMIN_EMAIL)
+    pass_val = request.cookies.get('remembered_password', '')
+    remember_val = request.cookies.get('remembered_email') is not None
+
+    return render_template('admin/login.html', 
+                           email=email_val, 
+                           password=pass_val, 
+                           remember=remember_val, 
+                           total_applications=total_apps, 
+                           accuracy=accuracy)
 
 
 @admin_bp.route('/logout')

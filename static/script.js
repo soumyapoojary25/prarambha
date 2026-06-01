@@ -262,11 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('.show-btn').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (e) => {
             const item = button.closest('.checklist-item');
             if (!item) return;
             const fileInput = item.querySelector('input.hidden-file-input');
             if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                e.preventDefault();
                 const file = fileInput.files[0];
                 const fileURL = URL.createObjectURL(file);
                 window.open(fileURL, '_blank');

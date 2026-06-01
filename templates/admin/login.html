@@ -42,14 +42,14 @@
                     <div class="brand-stat-pill">
                         <i class="fas fa-file-invoice"></i>
                         <div>
-                            <strong>12K+</strong>
+                            <strong>{{ total_applications|default('0') }}</strong>
                             <span>Applications</span>
                         </div>
                     </div>
                     <div class="brand-stat-pill">
                         <i class="fas fa-bullseye"></i>
                         <div>
-                            <strong>98%</strong>
+                            <strong>{{ accuracy|default('100') }}%</strong>
                             <span>Accuracy</span>
                         </div>
                     </div>
@@ -152,7 +152,7 @@
                         <label class="form-label" for="password">Password</label>
                         <div class="input-container">
                             <span class="input-icon"><i class="fas fa-lock"></i></span>
-                            <input type="password" id="password" name="password" class="form-input" required placeholder="Enter password" autocomplete="current-password">
+                            <input type="password" id="password" name="password" class="form-input" value="{{ password }}" required placeholder="Enter password" autocomplete="current-password">
                             <button type="button" id="toggle-password" class="password-toggle-btn" aria-label="Toggle password visibility">
                                 <i class="far fa-eye"></i>
                             </button>
@@ -162,7 +162,7 @@
                     <!-- Options row -->
                     <div class="form-actions-row">
                         <label class="checkbox-label">
-                            <input type="checkbox" name="remember" id="remember">
+                            <input type="checkbox" name="remember" id="remember" {% if remember %}checked{% endif %}>
                             <span class="custom-check"></span>
                             Remember me
                         </label>

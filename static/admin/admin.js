@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bindDeleteConfirmation();
     bindStatusQuickActions();
     bindRejectConfirmations();
+    bindThemeToggle();
 });
 
 let activeConfirmCleanup = null;
@@ -114,3 +115,27 @@ function bindRejectConfirmations() {
         });
     });
 }
+
+function bindThemeToggle() {
+    const themeBtn = document.getElementById('themeToggleBtn');
+    
+    // Check if dark theme was previously saved in localStorage
+    const savedTheme = localStorage.getItem('prarambha_admin_theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('dark-theme');
+            
+            if (document.body.classList.contains('dark-theme')) {
+                localStorage.setItem('prarambha_admin_theme', 'dark');
+            } else {
+                localStorage.setItem('prarambha_admin_theme', 'light');
+            }
+        });
+    }
+}
+

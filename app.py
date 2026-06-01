@@ -29,14 +29,38 @@ def get_db():
 
 @app.route('/')
 def index():
-    # Helper for the student form
+    app_id = request.args.get('id')
+    application = None
+    app_no = None
+    
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT MAX(CAST(application_no AS INTEGER)) FROM applications')
-    result = cursor.fetchone()[0]
-    app_no = '0' if result is None else str(result + 1)
+    
+    if app_id:
+        try:
+            cursor.execute('SELECT * FROM applications WHERE id = ?', (int(app_id),))
+            row = cursor.fetchone()
+            if row:
+                application = dict(row)
+                app_no = application['application_no']
+                # Parse submitted_documents
+                docs = {}
+                if application.get('submitted_documents'):
+                    try:
+                        docs = json.loads(application['submitted_documents'])
+                    except Exception:
+                        pass
+                application['parsed_documents'] = docs
+        except Exception as e:
+            print("Error loading application for editing:", e)
+            
+    if not app_no:
+        cursor.execute('SELECT MAX(CAST(application_no AS INTEGER)) FROM applications')
+        result = cursor.fetchone()[0]
+        app_no = '1' if (result is None or result < 1) else str(result + 1)
+        
     conn.close()
-    return render_template('index.html', app_no=app_no)
+    return render_template('index.html', app_no=app_no, application=application)
 
 DOC_MAP = {
     'document_sslc_upload': 'Original SSLC Marks Card',
@@ -63,46 +87,109 @@ def submit_application():
         uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
         os.makedirs(uploads_dir, exist_ok=True)
         
-        uploaded_docs = {}
         app_no = data.get('app_no', 'unknown')
-        
-        for field_name, doc_type in DOC_MAP.items():
-            if field_name in request.files:
-                file = request.files[field_name]
-                if file and file.filename != '':
-                    filename = f"{app_no}_{field_name}_{secure_filename(file.filename)}"
-                    file.save(os.path.join(uploads_dir, filename))
-                    uploaded_docs[doc_type] = f"/static/uploads/{filename}"
         
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO applications (
-                application_no, name, whatsapp, gender,
-                dob_date, dob_month, dob_year,
-                nationality, email, aadhar, blood_group, pan,
-                village, taluk, district, religion, caste, category,
-                parent_name, occupation, postal_address, parent_phone,
-                annual_income, permanent_address, pin_code,
-                program, second_language, status,
-                college_attended, first_puc, second_puc,
-                qual_exam_name, qual_exam_reg_no, qual_exam_year, qual_exam_board,
-                qual_exam_marks_obtained, qual_exam_max_marks, qual_exam_percentage,
-                submitted_documents
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            app_no, data.get('name'), data.get('whatsapp'), data.get('gender'),
-            data.get('dob-date'), data.get('dob-month'), data.get('dob-year'),
-            data.get('nationality'), data.get('email'), data.get('aadhar'), data.get('blood-group'), data.get('pan'),
-            data.get('village'), data.get('taluk'), data.get('district'), data.get('religion'), data.get('caste'), data.get('category'),
-            data.get('parent-name'), data.get('occupation'), data.get('postal-address'), data.get('parent-phone'),
-            data.get('annual-income'), data.get('permanent-address'), pin,
-            ', '.join(programs), ', '.join(languages),
-            data.get('college-attended'), data.get('first-puc'), data.get('second-puc'),
-            data.get('qual-exam-name'), data.get('qual-exam-reg-no'), data.get('qual-exam-year'), data.get('qual-exam-board'),
-            data.get('qual-exam-marks'), data.get('qual-exam-max'), data.get('qual-exam-percent'),
-            json.dumps(uploaded_docs)
-        ))
+        
+        # Check if application already exists
+        cursor.execute('SELECT id, submitted_documents FROM applications WHERE application_no = ?', (app_no,))
+        existing = cursor.fetchone()
+        
+        uploaded_docs = {}
+        if existing:
+            # Load existing docs
+            if existing['submitted_documents']:
+                try:
+                    uploaded_docs = json.loads(existing['submitted_documents'])
+                except Exception:
+                    pass
+            
+            # Save new files and delete overridden ones
+            for field_name, doc_type in DOC_MAP.items():
+                if field_name in request.files:
+                    file = request.files[field_name]
+                    if file and file.filename != '':
+                        # Delete old file
+                        if doc_type in uploaded_docs:
+                            old_file_path = os.path.join(app.root_path, uploaded_docs[doc_type].lstrip('/'))
+                            if os.path.exists(old_file_path):
+                                try:
+                                    os.remove(old_file_path)
+                                except Exception as e:
+                                    print("Error deleting old file:", e)
+                        
+                        # Save new file
+                        filename = f"{app_no}_{field_name}_{secure_filename(file.filename)}"
+                        file.save(os.path.join(uploads_dir, filename))
+                        uploaded_docs[doc_type] = f"/static/uploads/{filename}"
+            
+            cursor.execute('''
+                UPDATE applications SET
+                    name = ?, whatsapp = ?, gender = ?,
+                    dob_date = ?, dob_month = ?, dob_year = ?,
+                    nationality = ?, email = ?, aadhar = ?, blood_group = ?, pan = ?,
+                    village = ?, taluk = ?, district = ?, religion = ?, caste = ?, category = ?,
+                    parent_name = ?, occupation = ?, postal_address = ?, parent_phone = ?,
+                    annual_income = ?, permanent_address = ?, pin_code = ?,
+                    program = ?, second_language = ?,
+                    college_attended = ?, first_puc = ?, second_puc = ?,
+                    qual_exam_name = ?, qual_exam_reg_no = ?, qual_exam_year = ?, qual_exam_board = ?,
+                    qual_exam_marks_obtained = ?, qual_exam_max_marks = ?, qual_exam_percentage = ?,
+                    submitted_documents = ?
+                WHERE id = ?
+            ''', (
+                data.get('name'), data.get('whatsapp'), data.get('gender'),
+                data.get('dob-date'), data.get('dob-month'), data.get('dob-year'),
+                data.get('nationality'), data.get('email'), data.get('aadhar'), data.get('blood-group'), data.get('pan'),
+                data.get('village'), data.get('taluk'), data.get('district'), data.get('religion'), data.get('caste'), data.get('category'),
+                data.get('parent-name'), data.get('occupation'), data.get('postal-address'), data.get('parent-phone'),
+                data.get('annual-income'), data.get('permanent-address'), pin,
+                ', '.join(programs), ', '.join(languages),
+                data.get('college-attended'), data.get('first-puc'), data.get('second-puc'),
+                data.get('qual-exam-name'), data.get('qual-exam-reg-no'), data.get('qual-exam-year'), data.get('qual-exam-board'),
+                data.get('qual-exam-marks'), data.get('qual-exam-max'), data.get('qual-exam-percent'),
+                json.dumps(uploaded_docs),
+                existing['id']
+            ))
+        else:
+            # Process uploaded files for new insert
+            for field_name, doc_type in DOC_MAP.items():
+                if field_name in request.files:
+                    file = request.files[field_name]
+                    if file and file.filename != '':
+                        filename = f"{app_no}_{field_name}_{secure_filename(file.filename)}"
+                        file.save(os.path.join(uploads_dir, filename))
+                        uploaded_docs[doc_type] = f"/static/uploads/{filename}"
+            
+            cursor.execute('''
+                INSERT INTO applications (
+                    application_no, name, whatsapp, gender,
+                    dob_date, dob_month, dob_year,
+                    nationality, email, aadhar, blood_group, pan,
+                    village, taluk, district, religion, caste, category,
+                    parent_name, occupation, postal_address, parent_phone,
+                    annual_income, permanent_address, pin_code,
+                    program, second_language, status,
+                    college_attended, first_puc, second_puc,
+                    qual_exam_name, qual_exam_reg_no, qual_exam_year, qual_exam_board,
+                    qual_exam_marks_obtained, qual_exam_max_marks, qual_exam_percentage,
+                    submitted_documents
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                app_no, data.get('name'), data.get('whatsapp'), data.get('gender'),
+                data.get('dob-date'), data.get('dob-month'), data.get('dob-year'),
+                data.get('nationality'), data.get('email'), data.get('aadhar'), data.get('blood-group'), data.get('pan'),
+                data.get('village'), data.get('taluk'), data.get('district'), data.get('religion'), data.get('caste'), data.get('category'),
+                data.get('parent-name'), data.get('occupation'), data.get('postal-address'), data.get('parent-phone'),
+                data.get('annual-income'), data.get('permanent-address'), pin,
+                ', '.join(programs), ', '.join(languages),
+                data.get('college-attended'), data.get('first-puc'), data.get('second-puc'),
+                data.get('qual-exam-name'), data.get('qual-exam-reg-no'), data.get('qual-exam-year'), data.get('qual-exam-board'),
+                data.get('qual-exam-marks'), data.get('qual-exam-max'), data.get('qual-exam-percent'),
+                json.dumps(uploaded_docs)
+            ))
+        
         conn.commit()
         conn.close()
         return jsonify({'success': True, 'message': 'Submitted!', 'application_no': app_no})
@@ -116,6 +203,39 @@ def applications():
     applications = [dict(row) for row in raw_apps]
     conn.close()
     return render_template('applications.html', applications=applications)
+
+@app.route('/application/delete/<int:application_id>', methods=['POST'])
+def delete_application(application_id):
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Release seat if approved
+        cursor.execute('SELECT status, course FROM applications WHERE id = ?', (application_id,))
+        app_row = cursor.fetchone()
+        if app_row:
+            status = app_row['status']
+            course = app_row['course']
+            if status == 'approved' and course:
+                cursor.execute('SELECT total_seats, filled_seats FROM course_seats WHERE course_name = ?', (course,))
+                seat_row = cursor.fetchone()
+                if seat_row:
+                    total = seat_row['total_seats']
+                    filled = seat_row['filled_seats']
+                    new_filled = max(0, filled - 1)
+                    new_remaining = total - new_filled
+                    cursor.execute('''
+                        UPDATE course_seats 
+                        SET filled_seats = ?, remaining_seats = ? 
+                        WHERE course_name = ?
+                    ''', (new_filled, new_remaining, course))
+        
+        cursor.execute('DELETE FROM applications WHERE id = ?', (application_id,))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('applications'))
+    except Exception as e:
+        return str(e), 500
 
 @app.route('/application/<int:application_id>')
 def application_detail(application_id):

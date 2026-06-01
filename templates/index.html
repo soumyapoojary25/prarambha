@@ -4,326 +4,581 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. B. B. Hegde First Grade College – Admission Application</title>
-    <meta name="description" content="Online Admission Application Form for First Year B.Com./B.B.A./B.C.A. at Dr. B. B. Hegde First Grade College, Kundapura">
+    <meta name="description" content="Online Admission Application Form for First Year B.Com./B.B.A./B.C.A. at Dr. B. B. Hegde First Grade College, Kundapura. Affiliated to Mangalore University, AICTE Approved, NAAC B++ Accredited.">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Animated background orbs -->
-    <div class="bg-orbs">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+
+<div class="container">
+
+    <!-- ══════════════════════════════════════
+         HEADER
+    ══════════════════════════════════════ -->
+    <header class="form-header" id="formHeader">
+        <div class="header-logo-box">
+            <img src="{{ url_for('static', filename='college-logo.png') }}" alt="Dr. B. B. Hegde College Logo" class="header-logo">
+        </div>
+        <div class="header-text">
+            <h1>Dr. B. B. Hegde First Grade College</h1>
+            <p class="address">KUNDAPURA – 576201, Udupi District, Karnataka</p>
+            <div class="accreditations">
+                <span class="acc-tag">🎓 NAAC B++ Grade (Cycle I)</span>
+                <span class="acc-tag">🏛️ Mangalore University</span>
+                <span class="acc-tag">✅ AICTE Approved</span>
+            </div>
+            <p class="sub-info">(A Unit of Coondapur Education Society (R.), Kundapura)</p>
+        </div>
+    </header>
+
+    <!-- ══════════════════════════════════════
+         PROGRESS BAR
+    ══════════════════════════════════════ -->
+    <div class="progress-bar-wrap" id="progressWrap">
+        <div class="progress-label-row">
+            <span>Application Progress</span>
+            <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="steps-row" id="stepsRow">
+            <div class="step-item active" data-section="section1">
+                <div class="step-dot">01</div>
+                <span class="step-label">Personal</span>
+            </div>
+            <div class="step-item" data-section="section4">
+                <div class="step-dot">02</div>
+                <span class="step-label">Identification</span>
+            </div>
+            <div class="step-item" data-section="section5">
+                <div class="step-dot">03</div>
+                <span class="step-label">Birth Place</span>
+            </div>
+            <div class="step-item" data-section="section6">
+                <div class="step-dot">04</div>
+                <span class="step-label">Religion</span>
+            </div>
+            <div class="step-item" data-section="section7">
+                <div class="step-dot">05</div>
+                <span class="step-label">Category</span>
+            </div>
+            <div class="step-item" data-section="section8">
+                <div class="step-dot">06</div>
+                <span class="step-label">Guardian</span>
+            </div>
+            <div class="step-item" data-section="section9">
+                <div class="step-dot">07</div>
+                <span class="step-label">Program</span>
+            </div>
+            <div class="step-item" data-section="section10">
+                <div class="step-dot">08</div>
+                <span class="step-label">Education</span>
+            </div>
+            <div class="step-item" data-section="section11">
+                <div class="step-dot">09</div>
+                <span class="step-label">Qualifying</span>
+            </div>
+            <div class="step-item" data-section="section12">
+                <div class="step-dot">10</div>
+                <span class="step-label">Documents</span>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
-        <!-- Header -->
-        <header class="form-header" id="formHeader">
-            <div class="header-logo-box">
-                <img src="{{ url_for('static', filename='college-logo.png') }}" alt="Dr. B. B. Hegde College Logo" class="header-logo">
-            </div>
-            <div class="header-text">
-                <h1>Dr. B. B. Hegde First Grade College</h1>
-                <p class="address">KUNDAPURA - 576201, Udupi Dist.</p>
-                <div class="accreditations">
-                    <span class="acc-tag">NAAC B++ Grade (Cycle I)</span>
-                    <span class="acc-tag">Mangalore University</span>
-                    <span class="acc-tag">AICTE Approved</span>
-                </div>
-                <p class="sub-info">(A Unit of Coondapur Education Society (R.), Kundapura)</p>
-            </div>
-        </header>
+    <!-- ══════════════════════════════════════
+         TITLE BAR
+    ══════════════════════════════════════ -->
+    <div class="form-title-bar">
+        <h2>Application for Admission to First Year B.Com. / B.B.A. / B.C.A.</h2>
+        <div class="app-no-display">
+            <span class="app-label">App. No.</span>
+            <span class="app-value" id="appNoDisplay">{{ app_no }}</span>
+            <input type="hidden" name="app_no" value="{{ app_no }}" form="admission-form">
+        </div>
+    </div>
 
-        <!-- Title Bar -->
-        <div class="form-title-bar">
-            <h2>APPLICATION FOR ADMISSION TO FIRST YEAR B.Com./B.B.A./B.C.A.</h2>
-            <div class="app-no-display">
-                <span class="app-label">APPLICATION NO.</span>
-                <span class="app-value" id="appNoDisplay">{{ app_no }}</span>
-                <input type="hidden" name="app_no" value="{{ app_no }}" form="admission-form">
+    <!-- ══════════════════════════════════════
+         MAIN FORM
+    ══════════════════════════════════════ -->
+    <form id="admission-form" method="POST" action="/submit" enctype="multipart/form-data" novalidate>
+
+        <!-- ────────────────────────────────
+             SECTION 01 · Personal Details
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section1">
+            <div class="section-header-bar">
+                <div class="section-number">01</div>
+                <div>
+                    <div class="section-title">Personal Details</div>
+                    <div class="section-subtitle">Basic applicant information as per official records</div>
+                </div>
+            </div>
+            <div class="section-body">
+
+                <!-- Name & WhatsApp -->
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label for="name">
+                            Full Name of Applicant
+                            <span class="sub-label">Enter in BLOCK LETTERS exactly as in SSLC certificate</span>
+                        </label>
+                        <input type="text" id="name" name="name" required
+                               placeholder="E.g. RAMESH KUMAR SHETTY"
+                               style="text-transform:uppercase;"
+                               value="{{ application.name if application else '' }}">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="whatsapp">WhatsApp Mobile No.<span class="required-star">*</span></label>
+                        <input type="tel" id="whatsapp" name="whatsapp" required
+                               placeholder="10-digit mobile number" maxlength="10"
+                               pattern="[6-9][0-9]{9}"
+                               value="{{ application.whatsapp if application else '' }}">
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Gender & DOB -->
+                <div class="form-row">
+                    <div class="form-group span-4">
+                        <label for="gender">Gender<span class="required-star">*</span></label>
+                        <select id="gender" name="gender" required>
+                            <option value="" disabled {% if not application or not application.gender %}selected{% endif %}>Select gender</option>
+                            <option value="Male" {% if application and application.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if application and application.gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if application and application.gender == 'Other' %}selected{% endif %}>Other / Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="form-group span-6">
+                        <label>
+                            Date of Birth
+                            <span class="sub-label">As entered in SSLC Marks Card</span>
+                        </label>
+                        <div class="dob-select-group">
+                            <select id="dob-day" name="dob-day" required>
+                                <option value="" disabled {% if not application or not application.dob_date %}selected{% endif %}>Day</option>
+                                {% for d in range(1, 32) %}
+                                {% set d_str = '%02d' % d %}
+                                <option value="{{ d_str }}" {% if application and application.dob_date|int == d %}selected{% endif %}>{{ d_str }}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="dob-month" name="dob-month" required>
+                                <option value="" disabled {% if not application or not application.dob_month %}selected{% endif %}>Month</option>
+                                {% for m in range(1, 13) %}
+                                {% set m_str = '%02d' % m %}
+                                <option value="{{ m_str }}" {% if application and application.dob_month|int == m %}selected{% endif %}>{{ m_str }} – {{ ['January','February','March','April','May','June','July','August','September','October','November','December'][m-1] }}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="dob-year" name="dob-year" required>
+                                <option value="" disabled {% if not application or not application.dob_year %}selected{% endif %}>Year</option>
+                                {% for y in range(2010, 1989, -1) %}
+                                <option value="{{ y }}" {% if application and application.dob_year|int == y %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- hidden fields for backend compatibility -->
+                        <input type="hidden" id="dob-date" name="dob-date">
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- Main Form -->
-        <form id="admission-form" method="POST" action="/submit" enctype="multipart/form-data" novalidate>
 
-            <!-- Section 1 & WhatsApp -->
-            <div class="form-section glass-card" id="section1">
-                <div class="section-number">01</div>
-                <h3 class="section-title">Personal Details</h3>
-                <div class="form-row">
-                    <div class="form-group flex-2">
-                        <label for="name">Name of the Applicant <span class="sub-label">(In BLOCK LETTERS as entered in SSLC)</span></label>
-                        <input type="text" id="name" name="name" required placeholder="Enter your full name" style="text-transform: uppercase;">
-                    </div>
-                    <div class="form-group flex-1">
-                        <label for="whatsapp">WhatsApp Mobile No.</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" required placeholder="e.g. 9876543210" maxlength="10">
-                    </div>
-                </div>
-
-                <!-- Gender -->
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label>Gender</label>
-                        <div class="radio-group">
-                            <label class="radio-label" for="gender-male">
-                                <input type="radio" name="gender" id="gender-male" value="Male" required>
-                                <span class="custom-radio"></span> Male
-                            </label>
-                            <label class="radio-label" for="gender-female">
-                                <input type="radio" name="gender" id="gender-female" value="Female" required>
-                                <span class="custom-radio"></span> Female
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group flex-2">
-                        <label>Date of Birth <span class="sub-label">(as entered in SSLC Marks Card)</span></label>
-                        <div class="dob-group">
-                            <div class="dob-input-wrapper">
-                                <input type="text" class="dob-digit dob-date-1" maxlength="1" inputmode="numeric" placeholder="D" required>
-                                <input type="text" class="dob-digit dob-date-2" maxlength="1" inputmode="numeric" placeholder="D" required>
-                                <input type="text" class="dob-digit dob-month-1" maxlength="1" inputmode="numeric" placeholder="M" required>
-                                <input type="text" class="dob-digit dob-month-2" maxlength="1" inputmode="numeric" placeholder="M" required>
-                                <input type="text" class="dob-digit dob-year-1" maxlength="1" inputmode="numeric" placeholder="Y" required>
-                                <input type="text" class="dob-digit dob-year-2" maxlength="1" inputmode="numeric" placeholder="Y" required>
-                                <input type="text" class="dob-digit dob-year-3" maxlength="1" inputmode="numeric" placeholder="Y" required>
-                                <input type="text" class="dob-digit dob-year-4" maxlength="1" inputmode="numeric" placeholder="Y" required>
-                            </div>
-                            <input type="hidden" id="dob-date" name="dob-date">
-                            <input type="hidden" id="dob-month" name="dob-month">
-                            <input type="hidden" id="dob-year" name="dob-year">
-                        </div>
-                    </div>
+        <!-- ────────────────────────────────
+             SECTION 02 · Nationality & IDs
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section4">
+            <div class="section-header-bar">
+                <div class="section-number">02</div>
+                <div>
+                    <div class="section-title">Nationality &amp; Identification</div>
+                    <div class="section-subtitle">Government-issued identity documents</div>
                 </div>
             </div>
+            <div class="section-body">
 
-            <!-- Section 4: Nationality & IDs -->
-            <div class="form-section glass-card" id="section4">
-                <div class="section-number">02</div>
-                <h3 class="section-title">Nationality & Identification</h3>
                 <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="nationality">Nationality</label>
-                        <input type="text" id="nationality" name="nationality" required placeholder="e.g. Indian">
+                    <div class="form-group span-6">
+                        <label for="nationality">Nationality<span class="required-star">*</span></label>
+                        <select id="nationality" name="nationality" required>
+                            <option value="" disabled {% if not application or not application.nationality %}selected{% endif %}>Select nationality</option>
+                            <option value="Indian" {% if not application or application.nationality == 'Indian' %}selected{% endif %}>Indian</option>
+                            <option value="NRI" {% if application and application.nationality == 'NRI' %}selected{% endif %}>NRI</option>
+                            <option value="Other" {% if application and application.nationality == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
                     </div>
-                    <div class="form-group flex-1">
+                    <div class="form-group span-6">
                         <label for="blood-group">Blood Group</label>
                         <select id="blood-group" name="blood-group">
-                            <option value="">Select</option>
-                            <option value="A+">A+</option><option value="A-">A-</option>
-                            <option value="B+">B+</option><option value="B-">B-</option>
-                            <option value="O+">O+</option><option value="O-">O-</option>
-                            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                            <option value="" {% if not application or not application.blood_group %}selected{% endif %}>Select blood group (optional)</option>
+                            <option value="A+" {% if application and application.blood_group == 'A+' %}selected{% endif %}>A+</option>
+                            <option value="A-" {% if application and application.blood_group == 'A-' %}selected{% endif %}>A−</option>
+                            <option value="B+" {% if application and application.blood_group == 'B+' %}selected{% endif %}>B+</option>
+                            <option value="B-" {% if application and application.blood_group == 'B-' %}selected{% endif %}>B−</option>
+                            <option value="O+" {% if application and application.blood_group == 'O+' %}selected{% endif %}>O+</option>
+                            <option value="O-" {% if application and application.blood_group == 'O-' %}selected{% endif %}>O−</option>
+                            <option value="AB+" {% if application and application.blood_group == 'AB+' %}selected{% endif %}>AB+</option>
+                            <option value="AB-" {% if application and application.blood_group == 'AB-' %}selected{% endif %}>AB−</option>
+                            <option value="Unknown" {% if application and application.blood_group == 'Unknown' %}selected{% endif %}>Unknown</option>
                         </select>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="email">Student Email ID</label>
-                        <input type="email" id="email" name="email" required placeholder="yourname@email.com">
+
+                <div class="form-row" style="margin-top:18px;">
+                    <div class="form-group span-4">
+                        <label for="email">Student Email ID<span class="required-star">*</span></label>
+                        <input type="email" id="email" name="email" required
+                               placeholder="yourname@email.com"
+                               value="{{ application.email if application else '' }}">
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="aadhar">Student Aadhar No.</label>
-                        <input type="text" id="aadhar" name="aadhar" placeholder="XXXX XXXX XXXX" maxlength="14">
+                    <div class="form-group span-4">
+                        <label for="aadhar">Aadhar Number</label>
+                        <input type="text" id="aadhar" name="aadhar"
+                               placeholder="XXXX XXXX XXXX" maxlength="14"
+                               value="{{ application.aadhar if application else '' }}">
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="pan">Student PAN</label>
-                        <input type="text" id="pan" name="pan" placeholder="ABCDE1234F" maxlength="10" style="text-transform: uppercase;">
+                    <div class="form-group span-4">
+                        <label for="pan">PAN Card</label>
+                        <input type="text" id="pan" name="pan"
+                               placeholder="ABCDE1234F" maxlength="10"
+                               style="text-transform:uppercase;"
+                               value="{{ application.pan if application else '' }}">
                     </div>
                 </div>
-            </div>
 
-            <!-- Section 5: Place of Birth -->
-            <div class="form-section glass-card" id="section5">
+            </div>
+        </div>
+
+
+        <!-- ────────────────────────────────
+             SECTION 03 · Place of Birth
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section5">
+            <div class="section-header-bar">
                 <div class="section-number">03</div>
-                <h3 class="section-title">Place of Birth</h3>
+                <div>
+                    <div class="section-title">Place of Birth</div>
+                    <div class="section-subtitle">Location where the applicant was born</div>
+                </div>
+            </div>
+            <div class="section-body">
                 <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="village">i) Village</label>
-                        <input type="text" id="village" name="village" placeholder="Enter village name">
+                    <div class="form-group span-4">
+                        <label for="village">Village / Town</label>
+                        <input type="text" id="village" name="village" placeholder="Enter village or town name"
+                               value="{{ application.village if application else '' }}">
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="taluk">ii) Taluk</label>
-                        <input type="text" id="taluk" name="taluk" placeholder="Enter taluk">
+                    <div class="form-group span-4">
+                        <label for="taluk">Taluk</label>
+                        <input type="text" id="taluk" name="taluk" placeholder="Enter taluk name"
+                               value="{{ application.taluk if application else '' }}">
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="district">iii) District</label>
-                        <input type="text" id="district" name="district" placeholder="Enter district">
+                    <div class="form-group span-4">
+                        <label for="district">District</label>
+                        <input type="text" id="district" name="district" placeholder="Enter district name"
+                               value="{{ application.district if application else '' }}">
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Section 6: Religion & Caste -->
-            <div class="form-section glass-card" id="section6">
+
+        <!-- ────────────────────────────────
+             SECTION 04 · Religion & Caste
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section6">
+            <div class="section-header-bar">
                 <div class="section-number">04</div>
-                <h3 class="section-title">Religion & Caste</h3>
+                <div>
+                    <div class="section-title">Religion &amp; Caste</div>
+                    <div class="section-subtitle">Required for reservation eligibility assessment</div>
+                </div>
+            </div>
+            <div class="section-body">
                 <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="religion">i) Religion</label>
+                    <div class="form-group span-6">
+                        <label for="religion">Religion<span class="required-star">*</span></label>
                         <select id="religion" name="religion" required autocomplete="off">
-                            <option value="" disabled selected>Select Religion</option>
-                            <option value="Hindu">Hindu</option>
-                            <option value="Muslim">Muslim</option>
-                            <option value="Christian">Christian</option>
-                            <option value="Sikh">Sikh</option>
-                            <option value="Buddhist">Buddhist</option>
-                            <option value="Jain">Jain</option>
-                            <option value="Other">Other</option>
+                            <option value="" disabled {% if not application or not application.religion %}selected{% endif %}>Select religion</option>
+                            <option value="Hindu" {% if application and application.religion == 'Hindu' %}selected{% endif %}>Hindu</option>
+                            <option value="Muslim" {% if application and application.religion == 'Muslim' %}selected{% endif %}>Muslim</option>
+                            <option value="Christian" {% if application and application.religion == 'Christian' %}selected{% endif %}>Christian</option>
+                            <option value="Sikh" {% if application and application.religion == 'Sikh' %}selected{% endif %}>Sikh</option>
+                            <option value="Buddhist" {% if application and application.religion == 'Buddhist' %}selected{% endif %}>Buddhist</option>
+                            <option value="Jain" {% if application and application.religion == 'Jain' %}selected{% endif %}>Jain</option>
+                            <option value="Other" {% if application and application.religion == 'Other' %}selected{% endif %}>Other</option>
                         </select>
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="caste">ii) Caste & Sub Caste</label>
-                        <input type="text" id="caste" name="caste" required placeholder="Enter caste & sub caste">
+                    <div class="form-group span-6">
+                        <label for="caste">Caste &amp; Sub-Caste<span class="required-star">*</span></label>
+                        <input type="text" id="caste" name="caste" required
+                               placeholder="Enter caste and sub-caste"
+                               value="{{ application.caste if application else '' }}">
                     </div>
                 </div>
+
                 <div class="info-note">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="12" y1="16" x2="12" y2="12"></line>
                         <line x1="12" y1="8" x2="12.01" y2="8"></line>
                     </svg>
-                    <p><strong>Note:</strong> Students seeking reservation of seats as per G.O. should submit the Caste Certificate in the prescribed form along with the application. If not mentioned, they will not be considered for reservation of seats.</p>
+                    <p><strong>Note:</strong> Students seeking reservation of seats as per G.O. must submit the Caste Certificate in the prescribed form along with the application. Failure to provide this will result in non-consideration for reservation seats.</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Section 7: Category -->
-            <div class="form-section glass-card" id="section7">
+
+        <!-- ────────────────────────────────
+             SECTION 05 · Category
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section7">
+            <div class="section-header-bar">
                 <div class="section-number">05</div>
-                <h3 class="section-title">Category <span class="sub-label">(to which applicant belongs)</span></h3>
-                <div class="chip-group">
-                    <label class="chip"><input type="radio" name="category" value="SC"><span>SC</span></label>
-                    <label class="chip"><input type="radio" name="category" value="ST"><span>ST</span></label>
-                    <label class="chip"><input type="radio" name="category" value="GI"><span>GI</span></label>
-                    <label class="chip"><input type="radio" name="category" value="II(a)"><span>II(a)</span></label>
-                    <label class="chip"><input type="radio" name="category" value="II(b)"><span>II(b)</span></label>
-                    <label class="chip"><input type="radio" name="category" value="III(a)"><span>III(a)</span></label>
-                    <label class="chip"><input type="radio" name="category" value="III(b)"><span>III(b)</span></label>
-                    <label class="chip"><input type="radio" name="category" value="GM"><span>GM</span></label>
-                    <label class="chip"><input type="radio" name="category" value="PH"><span>PH</span></label>
+                <div>
+                    <div class="section-title">Category</div>
+                    <div class="section-subtitle">Select the reservation category the applicant belongs to</div>
                 </div>
             </div>
+            <div class="section-body">
+                <div class="chip-group">
+                    <label class="chip"><input type="radio" name="category" value="SC" {% if application and application.category == 'SC' %}checked{% endif %}><span>SC</span></label>
+                    <label class="chip"><input type="radio" name="category" value="ST" {% if application and application.category == 'ST' %}checked{% endif %}><span>ST</span></label>
+                    <label class="chip"><input type="radio" name="category" value="GI" {% if application and application.category == 'GI' %}checked{% endif %}><span>GI</span></label>
+                    <label class="chip"><input type="radio" name="category" value="II(a)" {% if application and application.category == 'II(a)' %}checked{% endif %}><span>II(a)</span></label>
+                    <label class="chip"><input type="radio" name="category" value="II(b)" {% if application and application.category == 'II(b)' %}checked{% endif %}><span>II(b)</span></label>
+                    <label class="chip"><input type="radio" name="category" value="III(a)" {% if application and application.category == 'III(a)' %}checked{% endif %}><span>III(a)</span></label>
+                    <label class="chip"><input type="radio" name="category" value="III(b)" {% if application and application.category == 'III(b)' %}checked{% endif %}><span>III(b)</span></label>
+                    <label class="chip"><input type="radio" name="category" value="GM" {% if application and application.category == 'GM' %}checked{% endif %}><span>GM</span></label>
+                    <label class="chip"><input type="radio" name="category" value="PH" {% if application and application.category == 'PH' %}checked{% endif %}><span>PH</span></label>
+                </div>
+            </div>
+        </div>
 
-            <!-- Section 8: Parent/Guardian -->
-            <div class="form-section glass-card" id="section8">
+
+        <!-- ────────────────────────────────
+             SECTION 06 · Parent / Guardian
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section8">
+            <div class="section-header-bar">
                 <div class="section-number">06</div>
-                <h3 class="section-title">Parent / Guardian Information</h3>
+                <div>
+                    <div class="section-title">Parent / Guardian Information</div>
+                    <div class="section-subtitle">Contact and family details</div>
+                </div>
+            </div>
+            <div class="section-body">
+
                 <div class="form-row">
                     <div class="form-group flex-2">
-                        <label for="parent-name">Name of the Father/Mother/Guardian</label>
-                        <input type="text" id="parent-name" name="parent-name" required placeholder="Enter parent/guardian name">
+                        <label for="parent-name">Name of Father / Mother / Guardian<span class="required-star">*</span></label>
+                        <input type="text" id="parent-name" name="parent-name" required
+                               placeholder="Enter full name of parent or guardian"
+                               value="{{ application.parent_name if application else '' }}">
                     </div>
                     <div class="form-group flex-1">
                         <label for="occupation">Occupation</label>
-                        <input type="text" id="occupation" name="occupation" placeholder="Enter occupation">
+                        <input type="text" id="occupation" name="occupation"
+                               placeholder="E.g. Farmer, Business, Service"
+                               value="{{ application.occupation if application else '' }}">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="postal-address">Full Postal Address</label>
-                    <textarea id="postal-address" name="postal-address" rows="3" required placeholder="Enter complete postal address"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="parent-phone">Phone Number: Residence (Mobile)</label>
-                        <input type="tel" id="parent-phone" name="parent-phone" placeholder="e.g. 9876543210" maxlength="10">
+
+                <div class="form-row" style="margin-top:18px;">
+                    <div class="form-group">
+                        <label for="postal-address">Full Postal Address<span class="required-star">*</span></label>
+                        <textarea id="postal-address" name="postal-address" rows="3" required
+                                  placeholder="House No., Street, Village/Town, Taluk, District, State – PIN">{{ application.postal_address if application else '' }}</textarea>
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="annual-income">Annual Income of the Parent/Guardian</label>
+                </div>
+
+                <div class="form-row" style="margin-top:18px;">
+                    <div class="form-group span-6">
+                        <label for="parent-phone">Phone No. (Residence / Mobile)</label>
+                        <input type="tel" id="parent-phone" name="parent-phone"
+                               placeholder="10-digit mobile number" maxlength="10"
+                               value="{{ application.parent_phone if application else '' }}">
+                    </div>
+                    <div class="form-group span-6">
+                        <label for="annual-income">Annual Income of Parent / Guardian</label>
                         <div class="input-with-prefix">
                             <span class="prefix">₹</span>
-                            <input type="number" id="annual-income" name="annual-income" placeholder="e.g. 500000">
+                            <input type="number" id="annual-income" name="annual-income"
+                                   placeholder="E.g. 250000" min="0"
+                                   value="{{ application.annual_income if application else '' }}">
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="permanent-address">Permanent Address</label>
-                    <textarea id="permanent-address" name="permanent-address" rows="3" placeholder="Enter permanent address"></textarea>
+
+                <div class="form-row" style="margin-top:18px;">
+                    <div class="form-group">
+                        <label for="permanent-address">Permanent Address <span class="sub-label">(if different from postal)</span></label>
+                        <textarea id="permanent-address" name="permanent-address" rows="3"
+                                  placeholder="Enter permanent address (leave blank if same as above)">{{ application.permanent_address if application else '' }}</textarea>
+                    </div>
                 </div>
-                <div class="pin-group">
+
+                <div class="pin-group" style="margin-top:18px;">
                     <label>PIN Code</label>
                     <div class="pin-boxes" id="pinBoxes">
-                        <input type="text" maxlength="1" class="pin-box" name="pin_1" id="pin1" inputmode="numeric">
-                        <input type="text" maxlength="1" class="pin-box" name="pin_2" id="pin2" inputmode="numeric">
-                        <input type="text" maxlength="1" class="pin-box" name="pin_3" id="pin3" inputmode="numeric">
-                        <input type="text" maxlength="1" class="pin-box" name="pin_4" id="pin4" inputmode="numeric">
-                        <input type="text" maxlength="1" class="pin-box" name="pin_5" id="pin5" inputmode="numeric">
-                        <input type="text" maxlength="1" class="pin-box" name="pin_6" id="pin6" inputmode="numeric">
+                        <input type="text" maxlength="1" class="pin-box" name="pin_1" id="pin1" inputmode="numeric" placeholder="–">
+                        <input type="text" maxlength="1" class="pin-box" name="pin_2" id="pin2" inputmode="numeric" placeholder="–">
+                        <input type="text" maxlength="1" class="pin-box" name="pin_3" id="pin3" inputmode="numeric" placeholder="–">
+                        <input type="text" maxlength="1" class="pin-box" name="pin_4" id="pin4" inputmode="numeric" placeholder="–">
+                        <input type="text" maxlength="1" class="pin-box" name="pin_5" id="pin5" inputmode="numeric" placeholder="–">
+                        <input type="text" maxlength="1" class="pin-box" name="pin_6" id="pin6" inputmode="numeric" placeholder="–">
                     </div>
                 </div>
-            </div>
 
-            <!-- Section 9: Program & Language -->
-            <div class="form-section glass-card" id="section9">
+            </div>
+        </div>
+
+
+        <!-- ────────────────────────────────
+             SECTION 07 · Program & Language
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section9">
+            <div class="section-header-bar">
                 <div class="section-number">07</div>
-                <h3 class="section-title">Program & Language Preferences</h3>
-                <label class="group-label">a) Program to which admission is sought</label>
+                <div>
+                    <div class="section-title">Program &amp; Language Preferences</div>
+                    <div class="section-subtitle">Select the course and language of study</div>
+                </div>
+            </div>
+            <div class="section-body">
+
+                 <p class="group-label">a) Program to which admission is sought</p>
+
                 <div class="program-grid">
+                    <!-- B.Com -->
                     <div class="program-column">
                         <h4 class="program-heading">B.Com</h4>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.Com (Regular)"><span class="custom-radio"></span> B.Com (Regular)</label>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.Com (CA/CMA/CS)"><span class="custom-radio"></span> B.Com (CA/CMA/CS)</label>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.Com (Data Science)"><span class="custom-radio"></span> B.Com (Data Science)</label>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.Com (Tally Prime)"><span class="custom-radio"></span> B.Com (Tally Prime)</label>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.Com (Staff Selection Commission)"><span class="custom-radio"></span> B.Com (Staff Selection Commission)</label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.Com (Regular)" {% if application and application.program == 'B.Com (Regular)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.Com (Regular)
+                        </label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.Com (CA/CMA/CS)" {% if application and application.program == 'B.Com (CA/CMA/CS)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.Com (CA / CMA / CS)
+                        </label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.Com (Data Science)" {% if application and application.program == 'B.Com (Data Science)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.Com (Data Science)
+                        </label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.Com (Tally Prime)" {% if application and application.program == 'B.Com (Tally Prime)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.Com (Tally Prime)
+                        </label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.Com (Staff Selection Commission)" {% if application and application.program == 'B.Com (Staff Selection Commission)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.Com (Staff Selection Commission)
+                        </label>
                     </div>
+
+                    <!-- B.B.A. -->
                     <div class="program-column">
                         <h4 class="program-heading">B.B.A.</h4>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.B.A. (Regular)"><span class="custom-radio"></span> B.B.A. (Regular)</label>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.B.A. (Logistics and Supply Chain Management)"><span class="custom-radio"></span> B.B.A. (Logistics and Supply Chain Management)</label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.B.A. (Regular)" {% if application and application.program == 'B.B.A. (Regular)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.B.A. (Regular)
+                        </label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.B.A. (Logistics and Supply Chain Management)" {% if application and application.program == 'B.B.A. (Logistics and Supply Chain Management)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.B.A. (Logistics &amp; Supply Chain Mgmt.)
+                        </label>
                     </div>
+
+                    <!-- B.C.A. -->
                     <div class="program-column">
                         <h4 class="program-heading">B.C.A.</h4>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.C.A. (Regular)"><span class="custom-radio"></span> B.C.A. (Regular)</label>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.C.A. (Artificial Intelligence and Machine Learning)"><span class="custom-radio"></span> B.C.A. (Artificial Intelligence and Machine Learning)</label>
-                        <label class="custom-radio-label"><input type="radio" name="program" value="B.C.A. (Cyber Security)"><span class="custom-radio"></span> B.C.A. (Cyber Security)</label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.C.A. (Regular)" {% if application and application.program == 'B.C.A. (Regular)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.C.A. (Regular)
+                        </label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.C.A. (Artificial Intelligence and Machine Learning)" {% if application and application.program == 'B.C.A. (Artificial Intelligence and Machine Learning)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.C.A. (AI &amp; Machine Learning)
+                        </label>
+                        <label class="custom-radio-label">
+                            <input type="radio" name="program" value="B.C.A. (Cyber Security)" {% if application and application.program == 'B.C.A. (Cyber Security)' %}checked{% endif %}>
+                            <span class="custom-radio"></span> B.C.A. (Cyber Security)
+                        </label>
                     </div>
                 </div>
 
                 <div class="language-section">
-                    <label class="group-label">b) Second Language Preferred</label>
+                    <p class="group-label">b) Second Language Preferred</p>
                     <div class="chip-group">
-                        <label class="chip chip-checkbox"><input type="radio" name="language" value="Kannada"><span>Kannada</span></label>
-                        <label class="chip chip-checkbox"><input type="radio" name="language" value="Hindi"><span>Hindi</span></label>
-                        <label class="chip chip-checkbox"><input type="radio" name="language" value="Sanskrit"><span>Sanskrit</span></label>
+                        <label class="chip chip-checkbox"><input type="radio" name="language" value="Kannada" {% if application and application.second_language == 'Kannada' %}checked{% endif %}><span>Kannada</span></label>
+                        <label class="chip chip-checkbox"><input type="radio" name="language" value="Hindi" {% if application and application.second_language == 'Hindi' %}checked{% endif %}><span>Hindi</span></label>
+                        <label class="chip chip-checkbox"><input type="radio" name="language" value="Sanskrit" {% if application and application.second_language == 'Sanskrit' %}checked{% endif %}><span>Sanskrit</span></label>
                     </div>
                 </div>
-            </div>
 
-            <!-- Section 10: Educational Qualification -->
-            <div class="form-section glass-card" id="section10">
+             </div>
+        </div>
+
+
+        <!-- ────────────────────────────────
+             SECTION 08 · Educational Qualification
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section10">
+            <div class="section-header-bar">
                 <div class="section-number">08</div>
-                <h3 class="section-title">Particulars of Educational Qualification</h3>
-                <div class="form-group">
-                    <label for="college-attended">(a) Name of the College last attended</label>
-                    <input type="text" id="college-attended" name="college-attended" required placeholder="Enter college name">
+                <div>
+                    <div class="section-title">Educational Qualification</div>
+                    <div class="section-subtitle">Details of institution and PUC studies</div>
                 </div>
+            </div>
+            <div class="section-body">
                 <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="first-puc">(i) First Year PUC</label>
-                        <input type="text" id="first-puc" name="first-puc" placeholder="Enter details / marks">
+                    <div class="form-group">
+                        <label for="college-attended">(a) Name of the College Last Attended<span class="required-star">*</span></label>
+                        <input type="text" id="college-attended" name="college-attended" required
+                               placeholder="Enter full name of your previous college">
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="second-puc">(ii) Second Year PUC</label>
-                        <input type="text" id="second-puc" name="second-puc" placeholder="Enter details / marks">
+                </div>
+                <div class="form-row" style="margin-top:18px;">
+                    <div class="form-group span-6">
+                        <label for="first-puc">(i) First Year PUC — Marks / Grade</label>
+                        <input type="text" id="first-puc" name="first-puc"
+                               placeholder="E.g. 480/600 or 80%">
+                    </div>
+                    <div class="form-group span-6">
+                        <label for="second-puc">(ii) Second Year PUC — Marks / Grade</label>
+                        <input type="text" id="second-puc" name="second-puc"
+                               placeholder="E.g. 520/600 or 86.67%">
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Section 11: Qualifying Examination Details (Bilingual) -->
-            <div class="form-section glass-card" id="section11">
+
+        <!-- ────────────────────────────────
+             SECTION 09 · Qualifying Exam Details
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section11">
+            <div class="section-header-bar">
                 <div class="section-number">09</div>
-                <h3 class="section-title"><span class="title-group">
-                    <span class="kn">ಅರ್ಹತಾ ಪರೀಕ್ಷೆಯ ವಿವರಗಳು</span>
-                    <span class="sub-label">Qualifying Examination Details</span>
-                </span></h3>
+                <div>
+                    <div class="section-title">
+                        <span class="title-group">
+                            <span>Qualifying Examination Details</span>
+                            <span class="sub-label" style="font-size:0.88rem;color:#8494b0;display:block;margin-top:1px;">ಅರ್ಹತಾ ಪರೀಕ್ಷೆಯ ವಿವರಗಳು</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="section-body">
                 <div class="marks-table-wrapper">
                     <table class="marks-table">
                         <thead>
                             <tr>
                                 <th>Examination Passed<span class="kannada-text">ಪಾಸಾದ ಪರೀಕ್ಷೆ</span></th>
                                 <th>Reg. No.<span class="kannada-text">ನೋಂದಣಿ ಸಂಖ್ಯೆ</span></th>
-                                <th>Month & Year<span class="kannada-text">ತಿಂಗಳು ಮತ್ತು ವರ್ಷ</span></th>
-                                <th>Board/University<span class="kannada-text">ಮಂಡಳಿ/ವಿಶ್ವವಿದ್ಯಾಲಯ</span></th>
+                                <th>Month &amp; Year<span class="kannada-text">ತಿಂಗಳು ಮತ್ತು ವರ್ಷ</span></th>
+                                <th>Board / University<span class="kannada-text">ಮಂಡಳಿ / ವಿ.ವಿ.</span></th>
                                 <th>Marks Obtained<span class="kannada-text">ಪಡೆದ ಅಂಕಗಳು</span></th>
                                 <th>Max Marks<span class="kannada-text">ಗರಿಷ್ಠ ಅಂಕಗಳು</span></th>
                                 <th>Percentage<span class="kannada-text">ಶೇಕಡಾವಾರು</span></th>
@@ -331,228 +586,439 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>
-                                    <input type="text" name="qual-exam-name" value="II PUC / Equivalent" readonly>
-                                </td>
-                                <td><input type="text" name="qual-exam-reg-no" placeholder="Reg. No"></td>
-                                <td><input type="text" name="qual-exam-year" placeholder="MM/YYYY"></td>
-                                <td><input type="text" name="qual-exam-board" placeholder="PUE Board"></td>
-                                <td><input type="number" name="qual-exam-marks" placeholder="000"></td>
-                                <td><input type="number" name="qual-exam-max" placeholder="600"></td>
-                                <td><input type="text" name="qual-exam-percent" placeholder="00.00%" readonly></td>
+                                <td><input type="text" name="qual-exam-name" value="II PUC / Equivalent" readonly></td>
+                                <td><input type="text" name="qual-exam-reg-no" placeholder="Registration No."></td>
+                                <td><input type="text" name="qual-exam-year"   placeholder="MM/YYYY"></td>
+                                <td><input type="text" name="qual-exam-board"  placeholder="E.g. KSEAB / CBSE"></td>
+                                <td><input type="number" name="qual-exam-marks" placeholder="E.g. 520"></td>
+                                <td><input type="number" name="qual-exam-max"  placeholder="E.g. 600"></td>
+                                <td><input type="text" name="qual-exam-percent" placeholder="Auto" id="qualPercent" readonly></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Section 12: List of documents submitted (Bilingual) -->
-            <div class="form-section glass-card" id="section12">
+
+        <!-- ────────────────────────────────
+             SECTION 10 · Documents
+        ──────────────────────────────────── -->
+        <div class="form-section" id="section12">
+            <div class="section-header-bar">
                 <div class="section-number">10</div>
-                <h3 class="section-title"><span class="title-group">
-                    <span class="kn">ಸಲ್ಲಿಸಲ್ಪಟ್ಟ ದಾಖಲೆಗಳ ಪಟ್ಟಿ</span>
-                    <span class="sub-label">List of documents submitted</span>
-                </span></h3>
-                <p class="group-label">Tick the documents being submitted / ಸಲ್ಲಿಸಲ್ಪಟ್ಟ ದಾಖಲೆಗಳನ್ನು ಗುರುತು ಮಾಡಿ:</p>
+                <div>
+                    <div class="section-title">
+                        <span class="title-group">
+                            <span>Documents Submitted</span>
+                            <span class="sub-label" style="font-size:0.88rem;color:#8494b0;display:block;margin-top:1px;">ಸಲ್ಲಿಸಲ್ಪಟ್ಟ ದಾಖಲೆಗಳ ಪಟ್ಟಿ</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="section-body">
+                <p class="group-label">Tick and upload the documents you are submitting</p>
                 <div class="checklist-grid">
+
+                    <!-- SSLC Marks Card -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="SSLC Marks Card">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="SSLC Marks Card" id="doc_sslc" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Original SSLC Marks Card' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
                                 <span class="en">Original SSLC Marks Card</span>
                                 <span class="kn">ಮೂಲ ಎಸ್.ಎಸ್.ಎಲ್.ಸಿ ಅಂಕಪಟ್ಟಿ</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Original SSLC Marks Card'] if application and application.parsed_documents and 'Original SSLC Marks Card' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Original SSLC Marks Card' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Original SSLC Marks Card' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Original SSLC Marks Card'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_sslc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_sslc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
+                               {% if not application or not application.parsed_documents or 'Original SSLC Marks Card' not in application.parsed_documents %}required{% endif %}>
                     </div>
+
+                    <!-- PUC Marks Card -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="PUC Marks Card">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="PUC Marks Card" id="doc_puc" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Original PUC Marks Card' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
                                 <span class="en">Original PUC Marks Card</span>
                                 <span class="kn">ಮೂಲ ಪಿ.ಯು.ಸಿ ಅಂಕಪಟ್ಟಿ</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Original PUC Marks Card'] if application and application.parsed_documents and 'Original PUC Marks Card' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Original PUC Marks Card' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Original PUC Marks Card' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Original PUC Marks Card'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_puc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_puc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
+                               {% if not application or not application.parsed_documents or 'Original PUC Marks Card' not in application.parsed_documents %}required{% endif %}>
                     </div>
+
+                    <!-- Transfer Certificate -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="Transfer Certificate">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="Transfer Certificate" id="doc_tc" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Transfer Certificate (TC)' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
                                 <span class="en">Transfer Certificate (TC)</span>
                                 <span class="kn">ವರ್ಗಾವಣೆ ಪತ್ರ (ಟಿ.ಸಿ)</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Transfer Certificate (TC)'] if application and application.parsed_documents and 'Transfer Certificate (TC)' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Transfer Certificate (TC)' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Transfer Certificate (TC)' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Transfer Certificate (TC)'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_tc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_tc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
+                               {% if not application or not application.parsed_documents or 'Transfer Certificate (TC)' not in application.parsed_documents %}required{% endif %}>
                     </div>
+
+                    <!-- Conduct Certificate -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="Conduct Certificate">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="Conduct Certificate" id="doc_conduct" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Conduct Certificate' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
                                 <span class="en">Conduct Certificate</span>
                                 <span class="kn">ನಡತೆ ಪತ್ರ</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Conduct Certificate'] if application and application.parsed_documents and 'Conduct Certificate' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Conduct Certificate' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Conduct Certificate' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Conduct Certificate'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_conduct_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_conduct_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
+                               {% if not application or not application.parsed_documents or 'Conduct Certificate' not in application.parsed_documents %}required{% endif %}>
                     </div>
+
+                    <!-- Caste Certificate -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="Caste Certificate">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="Caste Certificate" id="doc_caste" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Caste Certificate' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
                                 <span class="en">Caste Certificate</span>
                                 <span class="kn">ಜಾತಿ ಪ್ರಮಾಣ ಪತ್ರ</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Caste Certificate'] if application and application.parsed_documents and 'Caste Certificate' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Caste Certificate' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Caste Certificate' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Caste Certificate'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_caste_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_caste_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
+
+                    <!-- Income Certificate -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="Income Certificate">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="Income Certificate" id="doc_income" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Income Certificate' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
                                 <span class="en">Income Certificate</span>
                                 <span class="kn">ಆದಾಯ ಪ್ರಮಾಣ ಪತ್ರ</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Income Certificate'] if application and application.parsed_documents and 'Income Certificate' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Income Certificate' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Income Certificate' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Income Certificate'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_income_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_income_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
+
+                    <!-- Aadhar Card Copy -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="Aadhar Card Copy">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="Aadhar Card Copy" id="doc_aadhar" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Aadhar Card Copy' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
                                 <span class="en">Aadhar Card Copy</span>
                                 <span class="kn">ಆಧಾರ್ ಕಾರ್ಡ್‌ನ ಪ್ರತಿ</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Aadhar Card Copy'] if application and application.parsed_documents and 'Aadhar Card Copy' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Aadhar Card Copy' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Aadhar Card Copy' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Aadhar Card Copy'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_aadhar_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_aadhar_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
+
+                    <!-- Passport Size Photograph -->
                     <div class="checklist-item">
-                        <input type="checkbox" name="documents" value="Passport Size Photo">
-                        <span class="checkmark"></span>
+                        <input type="checkbox" name="documents" value="Passport Size Photo" id="doc_photo" onclick="return false;" style="pointer-events: none;"
+                               {% if application and application.parsed_documents and 'Photos (5 Passport size)' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
-                                <span class="en">Passport size Photo <span style="font-weight:500;color:var(--muted);">(5 Passport size Photos)</span></span>
-                                <span class="kn">ಪಾಸ್ಪೋರ್ಟ್ ಅಳತೆಯ ಭಾವಚಿತ್ರ (5 ಪಾಸ್ಪೋರ್ಟ್ ಅಳತೆಯ ಭಾವಚಿತ್ರಗಳು)</span>
+                                <span class="en">Passport Size Photographs <span style="color:var(--muted);font-weight:400;">(5 copies required)</span></span>
+                                <span class="kn">ಪಾಸ್ಪೋರ್ಟ್ ಅಳತೆಯ ಭಾವಚಿತ್ರ (5 ಪ್ರತಿಗಳು)</span>
                             </div>
                             <div class="document-actions">
-                                <button type="button" class="doc-btn upload-btn" data-action="upload">Upload</button>
-                                <button type="button" class="doc-btn show-btn" data-action="show" style="display: none;">Show</button>
-                                <span class="file-name">No file selected</span>
+                                <button type="button" class="doc-btn upload-btn" data-action="upload">⬆ Upload</button>
+                                <a href="{{ application.parsed_documents['Photos (5 Passport size)'] if application and application.parsed_documents and 'Photos (5 Passport size)' in application.parsed_documents else '#' }}"
+                                   target="_blank" class="doc-btn show-btn" data-action="show"
+                                   style="text-decoration:none; {% if not application or not application.parsed_documents or 'Photos (5 Passport size)' not in application.parsed_documents %}display:none;{% endif %}">👁 Show</a>
+                                <span class="file-name">
+                                    {% if application and application.parsed_documents and 'Photos (5 Passport size)' in application.parsed_documents %}
+                                        {{ application.parsed_documents['Photos (5 Passport size)'].split('/')[-1] }}
+                                    {% else %}
+                                        No file chosen
+                                    {% endif %}
+                                </span>
                             </div>
-                        </div>                        <input type="file" name="document_photos_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
+                        </div>
+                        <input type="file" name="document_photos_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
+                               {% if not application or not application.parsed_documents or 'Photos (5 Passport size)' not in application.parsed_documents %}required{% endif %}>
                     </div>
+
                 </div>
             </div>
+        </div>
 
 
-            <!-- Submit -->
-            <div class="form-actions">
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    <span class="btn-text">Submit Application</span>
-                    <span class="btn-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                    </span>
-                    <span class="btn-loader" style="display:none;">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="0 12 12;360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>
-                    </span>
-                </button>
-            </div>
-        </form>
+        <!-- ══════════════════════════════════════
+             SUBMIT BUTTON
+        ══════════════════════════════════════ -->
+        <div class="form-actions">
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span class="btn-text">Submit Application</span>
+                <span class="btn-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </span>
+                <span class="btn-loader" id="btnLoader" style="display:none;">
+                    <svg viewBox="0 0 24 24" width="22" height="22">
+                        <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none"/>
+                        <path d="M12 2 a10 10 0 0 1 10 10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round">
+                            <animateTransform attributeName="transform" type="rotate"
+                                values="0 12 12;360 12 12" dur="0.8s" repeatCount="indefinite"/>
+                        </path>
+                    </svg>
+                </span>
+            </button>
+        </div>
 
-        <!-- Contact Us -->
-        <div class="contact-us-box glass-card">
-            <div class="contact-us-header">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" style="color:var(--primary);flex-shrink:0;">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.78h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.72-.72a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.28 18z"></path>
-                </svg>
-                <h3>Contact Us</h3>
-            </div>
-            <div class="contact-us-body">
-                <div class="contact-us-item">
-                    <div class="contact-us-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.78h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.72-.72a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.28 18z"></path>
-                        </svg>
-                    </div>
-                    <div class="contact-us-detail">
-                        <span class="contact-label">College Office</span>
-                        <a href="tel:9857463544" class="contact-value">9857463544</a>
-                    </div>
+    </form>
+
+    <!-- ══════════════════════════════════════
+         CONTACT US
+    ══════════════════════════════════════ -->
+    <div class="contact-us-box glass-card" style="margin-top:24px;">
+        <div class="contact-us-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" style="color:var(--primary-mid);flex-shrink:0;">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.78h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.72-.72a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.28 18z"></path>
+            </svg>
+            <h3>Contact Us</h3>
+        </div>
+        <div class="contact-us-body">
+            <div class="contact-us-item">
+                <div class="contact-us-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.78h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.72-.72a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.28 18z"></path>
+                    </svg>
                 </div>
-                <div class="contact-us-item">
-                    <div class="contact-us-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                        </svg>
-                    </div>
-                    <div class="contact-us-detail">
-                        <span class="contact-label">Website</span>
-                        <a href="http://www.bbhcollege.com" target="_blank" rel="noopener noreferrer" class="contact-value">www.bbhcollege.com</a>
-                    </div>
+                <div class="contact-us-detail">
+                    <span class="contact-label">College Office</span>
+                    <a href="tel:9857463544" class="contact-value">9857463544</a>
+                </div>
+            </div>
+            <div class="contact-us-item">
+                <div class="contact-us-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                </div>
+                <div class="contact-us-detail">
+                    <span class="contact-label">Website</span>
+                    <a href="http://www.bbhcollege.com" target="_blank" rel="noopener noreferrer" class="contact-value">www.bbhcollege.com</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div id="success-modal" class="modal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="success-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-            </div>
-            <h2>Application Submitted!</h2>
-            <p>Your application number is <strong id="modal-app-no">{{ app_no }}</strong></p>
-            <p class="modal-sub">You will be contacted shortly for further steps.</p>
-            <div class="modal-actions">
-                <button id="close-modal" class="btn-secondary">Close</button>
-            </div>
+</div><!-- /.container -->
+
+
+<!-- ══════════════════════════════════════
+     SUCCESS MODAL
+══════════════════════════════════════ -->
+<div id="success-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <h2>Application Submitted! 🎉</h2>
+        <p>Your application has been successfully received.</p>
+        <p class="modal-sub">Application Number: <strong id="modal-app-no">{{ app_no }}</strong></p>
+        <p style="font-size:0.9rem;color:var(--muted);margin-top:8px;">You will be contacted shortly for further admission steps. Please keep this number safe.</p>
+        <div class="modal-actions">
+            <button id="close-modal" class="btn-secondary">Close</button>
         </div>
     </div>
+</div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script>
+/* ── Progress Bar (scroll-driven) ── */
+(function () {
+    const sections = document.querySelectorAll('.form-section');
+    const fill     = document.getElementById('progressFill');
+    const pct      = document.getElementById('progress-percent');
+    const stepItems= document.querySelectorAll('.step-item');
+
+    function getActiveSectionIndex() {
+        let best = 0;
+        sections.forEach((sec, i) => {
+            const r = sec.getBoundingClientRect();
+            if (r.top < window.innerHeight * 0.55) best = i;
+        });
+        return best;
+    }
+
+    function update() {
+        const idx      = getActiveSectionIndex();
+        const progress = Math.round(((idx + 1) / sections.length) * 100);
+        fill.style.width = progress + '%';
+        pct.textContent  = progress + '%';
+
+        stepItems.forEach((item, i) => {
+            item.classList.remove('active', 'completed');
+            if (i < idx)  item.classList.add('completed');
+            if (i === idx) item.classList.add('active');
+        });
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+})();
+
+/* ── Auto-calculate qualifying exam percentage ── */
+(function () {
+    const marksInput = document.querySelector('[name="qual-exam-marks"]');
+    const maxInput   = document.querySelector('[name="qual-exam-max"]');
+    const pctInput   = document.getElementById('qualPercent');
+
+    function calcPct() {
+        const m = parseFloat(marksInput.value);
+        const mx= parseFloat(maxInput.value);
+        if (!isNaN(m) && !isNaN(mx) && mx > 0) {
+            pctInput.value = ((m / mx) * 100).toFixed(2) + '%';
+        } else {
+            pctInput.value = '';
+        }
+    }
+    if (marksInput && maxInput) {
+        marksInput.addEventListener('input', calcPct);
+        maxInput.addEventListener('input', calcPct);
+    }
+})();
+
+/* ── PIN Box auto-advance ── */
+(function () {
+    const pins = document.querySelectorAll('.pin-box');
+    pins.forEach((box, idx) => {
+        box.addEventListener('input', () => {
+            if (box.value && idx < pins.length - 1) pins[idx + 1].focus();
+        });
+        box.addEventListener('keydown', e => {
+            if (e.key === 'Backspace' && !box.value && idx > 0) pins[idx - 1].focus();
+        });
+    });
+})();
+
+/* ── Submit Button Loader ── */
+(function () {
+    const form   = document.getElementById('admission-form');
+    const btn    = document.getElementById('submitBtn');
+    const loader = document.getElementById('btnLoader');
+    const icon   = btn.querySelector('.btn-icon');
+    const text   = btn.querySelector('.btn-text');
+
+    if (form && btn) {
+        form.addEventListener('submit', () => {
+            if (form.checkValidity()) {
+                btn.disabled = true;
+                text.textContent = 'Submitting…';
+                if (icon)   icon.style.display   = 'none';
+                if (loader) loader.style.display  = 'inline-flex';
+            }
+        });
+    }
+})();
+</script>
+
 </body>
 </html>
-
