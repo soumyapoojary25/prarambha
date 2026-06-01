@@ -135,6 +135,13 @@ body::before {
     flex: 1;
     position: relative;
     min-width: 72px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.step-item:hover .step-dot {
+    border-color: var(--primary-light);
 }
 
 .step-item:not(:last-child)::after {

@@ -155,29 +155,27 @@
                             <span class="sub-label">As entered in SSLC Marks Card</span>
                         </label>
                         <div class="dob-select-group">
-                            <select id="dob-day" name="dob-day" required>
+                            <select id="dob-day" name="dob-date" required data-label="Date of Birth (Day)">
                                 <option value="" disabled {% if not application or not application.dob_date %}selected{% endif %}>Day</option>
                                 {% for d in range(1, 32) %}
                                 {% set d_str = '%02d' % d %}
                                 <option value="{{ d_str }}" {% if application and application.dob_date|int == d %}selected{% endif %}>{{ d_str }}</option>
                                 {% endfor %}
                             </select>
-                            <select id="dob-month" name="dob-month" required>
+                            <select id="dob-month" name="dob-month" required data-label="Date of Birth (Month)">
                                 <option value="" disabled {% if not application or not application.dob_month %}selected{% endif %}>Month</option>
                                 {% for m in range(1, 13) %}
                                 {% set m_str = '%02d' % m %}
                                 <option value="{{ m_str }}" {% if application and application.dob_month|int == m %}selected{% endif %}>{{ m_str }} – {{ ['January','February','March','April','May','June','July','August','September','October','November','December'][m-1] }}</option>
                                 {% endfor %}
                             </select>
-                            <select id="dob-year" name="dob-year" required>
+                            <select id="dob-year" name="dob-year" required data-label="Date of Birth (Year)">
                                 <option value="" disabled {% if not application or not application.dob_year %}selected{% endif %}>Year</option>
                                 {% for y in range(2010, 1989, -1) %}
                                 <option value="{{ y }}" {% if application and application.dob_year|int == y %}selected{% endif %}>{{ y }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <!-- hidden fields for backend compatibility -->
-                        <input type="hidden" id="dob-date" name="dob-date">
                     </div>
                 </div>
 
@@ -617,7 +615,7 @@
                 </div>
             </div>
             <div class="section-body">
-                <p class="group-label">Tick and upload the documents you are submitting</p>
+                <p class="group-label">Upload any documents you have ready (all uploads are optional)</p>
                 <div class="checklist-grid">
 
                     <!-- SSLC Marks Card -->
@@ -643,8 +641,7 @@
                                 </span>
                             </div>
                         </div>
-                        <input type="file" name="document_sslc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
-                               {% if not application or not application.parsed_documents or 'Original SSLC Marks Card' not in application.parsed_documents %}required{% endif %}>
+                        <input type="file" name="document_sslc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
 
                     <!-- PUC Marks Card -->
@@ -670,8 +667,7 @@
                                 </span>
                             </div>
                         </div>
-                        <input type="file" name="document_puc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
-                               {% if not application or not application.parsed_documents or 'Original PUC Marks Card' not in application.parsed_documents %}required{% endif %}>
+                        <input type="file" name="document_puc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
 
                     <!-- Transfer Certificate -->
@@ -697,8 +693,7 @@
                                 </span>
                             </div>
                         </div>
-                        <input type="file" name="document_tc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
-                               {% if not application or not application.parsed_documents or 'Transfer Certificate (TC)' not in application.parsed_documents %}required{% endif %}>
+                        <input type="file" name="document_tc_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
 
                     <!-- Conduct Certificate -->
@@ -724,8 +719,7 @@
                                 </span>
                             </div>
                         </div>
-                        <input type="file" name="document_conduct_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
-                               {% if not application or not application.parsed_documents or 'Conduct Certificate' not in application.parsed_documents %}required{% endif %}>
+                        <input type="file" name="document_conduct_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
 
                     <!-- Caste Certificate -->
@@ -812,7 +806,7 @@
                                {% if application and application.parsed_documents and 'Photos (5 Passport size)' in application.parsed_documents %}checked{% endif %}>
                         <div class="checklist-content">
                             <div class="checklist-info">
-                                <span class="en">Passport Size Photographs <span style="color:var(--muted);font-weight:400;">(5 copies required)</span></span>
+                                <span class="en">Passport Size Photographs <span style="color:var(--muted);font-weight:400;">(optional)</span></span>
                                 <span class="kn">ಪಾಸ್ಪೋರ್ಟ್ ಅಳತೆಯ ಭಾವಚಿತ್ರ (5 ಪ್ರತಿಗಳು)</span>
                             </div>
                             <div class="document-actions">
@@ -829,8 +823,7 @@
                                 </span>
                             </div>
                         </div>
-                        <input type="file" name="document_photos_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload"
-                               {% if not application or not application.parsed_documents or 'Photos (5 Passport size)' not in application.parsed_documents %}required{% endif %}>
+                        <input type="file" name="document_photos_upload" accept=".pdf,image/*" class="hidden-file-input" data-purpose="upload">
                     </div>
 
                 </div>
@@ -932,39 +925,6 @@
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 <script>
-/* ── Progress Bar (scroll-driven) ── */
-(function () {
-    const sections = document.querySelectorAll('.form-section');
-    const fill     = document.getElementById('progressFill');
-    const pct      = document.getElementById('progress-percent');
-    const stepItems= document.querySelectorAll('.step-item');
-
-    function getActiveSectionIndex() {
-        let best = 0;
-        sections.forEach((sec, i) => {
-            const r = sec.getBoundingClientRect();
-            if (r.top < window.innerHeight * 0.55) best = i;
-        });
-        return best;
-    }
-
-    function update() {
-        const idx      = getActiveSectionIndex();
-        const progress = Math.round(((idx + 1) / sections.length) * 100);
-        fill.style.width = progress + '%';
-        pct.textContent  = progress + '%';
-
-        stepItems.forEach((item, i) => {
-            item.classList.remove('active', 'completed');
-            if (i < idx)  item.classList.add('completed');
-            if (i === idx) item.classList.add('active');
-        });
-    }
-
-    window.addEventListener('scroll', update, { passive: true });
-    update();
-})();
-
 /* ── Auto-calculate qualifying exam percentage ── */
 (function () {
     const marksInput = document.querySelector('[name="qual-exam-marks"]');

@@ -32,32 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ===========================
-    // DOB DIGIT AUTO-TAB
-    // ===========================
-    const dobDigits = document.querySelectorAll('.dob-digit');
-    dobDigits.forEach((digit, index) => {
-        digit.addEventListener('input', (e) => {
-            const val = e.target.value;
-            // Allow only digits
-            e.target.value = val.replace(/\D/g, '');
-            if (val && index < dobDigits.length - 1) {
-                dobDigits[index + 1].focus();
-            }
-        });
-
-        digit.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                dobDigits[index - 1].focus();
-            }
-        });
-
-        // Select all text on focus for easy overwrite
-        digit.addEventListener('focus', () => {
-            digit.select();
-        });
-    });
-
-    // ===========================
     // AADHAR FORMATTING (XXXX XXXX XXXX)
     // ===========================
     const aadharField = document.getElementById('aadhar');
@@ -95,18 +69,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const errorSections = new Set();
         const missingFields = [];
+        const validatedRadioGroups = new Set();
         let firstErrorField = null;
 
         requiredFields.forEach(field => {
             let isFieldEmpty = false;
             
-            // Handle radio groups
+            // Handle radio groups (validate each group once)
             if (field.type === 'radio') {
-                const name = field.name;
-                const group = form.querySelectorAll(`input[name="${name}"]:checked`);
+                if (validatedRadioGroups.has(field.name)) return;
+                validatedRadioGroups.add(field.name);
+                const group = form.querySelectorAll(`input[name="${field.name}"]:checked`);
                 if (group.length === 0) isFieldEmpty = true;
             } else if (field.type === 'file') {
-                if (!field.files || field.files.length === 0) isFieldEmpty = true;
+                // Document uploads are optional
+                isFieldEmpty = false;
+            } else if (field.tagName === 'SELECT') {
+                if (!field.value) isFieldEmpty = true;
             } else if (!field.value.trim()) {
                 isFieldEmpty = true;
             }
@@ -168,22 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Combine DOB digits into hidden fields
-            const dobDate1 = document.querySelector('.dob-date-1')?.value || '';
-            const dobDate2 = document.querySelector('.dob-date-2')?.value || '';
-            const dobMonth1 = document.querySelector('.dob-month-1')?.value || '';
-            const dobMonth2 = document.querySelector('.dob-month-2')?.value || '';
-            const dobYear1 = document.querySelector('.dob-year-1')?.value || '';
-            const dobYear2 = document.querySelector('.dob-year-2')?.value || '';
-            const dobYear3 = document.querySelector('.dob-year-3')?.value || '';
-            const dobYear4 = document.querySelector('.dob-year-4')?.value || '';
-
-            // Set hidden field values
-            document.getElementById('dob-date').value = dobDate1 + dobDate2;
-            document.getElementById('dob-month').value = dobMonth1 + dobMonth2;
-            document.getElementById('dob-year').value = dobYear1 + dobYear2 + dobYear3 + dobYear4;
-
-            // Perform manual validation
+            // Perform manual validation (DOB uses #dob-day, #dob-month, #dob-year selects directly)
             if (!validateForm()) return;
 
             // Add loading state
@@ -404,6 +368,162 @@ document.addEventListener('DOMContentLoaded', () => {
 
         marksInput.addEventListener('input', calculatePercentage);
         maxInput.addEventListener('input', calculatePercentage);
+    }
+
+    // ===========================
+    // APPLICATION PROGRESS (fills step-by-step as user completes sections)
+    // ===========================
+    const progressFill = document.getElementById('progressFill');
+    const progressPct = document.getElementById('progress-percent');
+    const stepItems = document.querySelectorAll('.step-item');
+    const progressSections = Array.from(stepItems).map(item => ({
+        stepEl: item,
+        sectionEl: document.getElementById(item.dataset.section)
+    })).filter(entry => entry.sectionEl);
+
+    let lastCompletedCount = 0;
+
+    function fieldHasValue(field) {
+        if (!field || field.disabled) return false;
+        if (field.type === 'file') {
+            return field.files && field.files.length > 0;
+        }
+        if (field.type === 'radio' || field.type === 'checkbox') {
+            return field.checked;
+        }
+        if (field.tagName === 'SELECT') {
+            return !!field.value;
+        }
+        return !!String(field.value || '').trim();
+    }
+
+    function radioGroupFilled(form, name) {
+        return !!form.querySelector(`input[name="${name}"]:checked`);
+    }
+
+    function allFieldsFilled(form, names) {
+        return names.every(name => {
+            const field = form.querySelector(`[name="${name}"]`);
+            if (!field) return false;
+            if (field.type === 'radio') {
+                return radioGroupFilled(form, name);
+            }
+            return fieldHasValue(field);
+        });
+    }
+
+    function pinCodeFilled(form) {
+        return Array.from({ length: 6 }, (_, i) => form.querySelector(`[name="pin_${i + 1}"]`))
+            .every(box => box && /^\d$/.test(box.value.trim()));
+    }
+
+    const PRIOR_SECTION_IDS = [
+        'section1', 'section4', 'section5', 'section6', 'section7',
+        'section8', 'section9', 'section10', 'section11'
+    ];
+
+    function checkSectionById(id) {
+        if (!form) return false;
+        switch (id) {
+            case 'section1':
+                return allFieldsFilled(form, ['name', 'whatsapp', 'gender', 'dob-date', 'dob-month', 'dob-year']);
+            case 'section4':
+                return allFieldsFilled(form, ['nationality', 'email']);
+            case 'section5':
+                return allFieldsFilled(form, ['village', 'taluk', 'district']);
+            case 'section6':
+                return allFieldsFilled(form, ['religion', 'caste']);
+            case 'section7':
+                return radioGroupFilled(form, 'category');
+            case 'section8':
+                return allFieldsFilled(form, ['parent-name', 'postal-address']) && pinCodeFilled(form);
+            case 'section9':
+                return radioGroupFilled(form, 'program') && radioGroupFilled(form, 'language');
+            case 'section10':
+                return allFieldsFilled(form, ['college-attended']);
+            case 'section11':
+                return allFieldsFilled(form, [
+                    'qual-exam-reg-no',
+                    'qual-exam-year',
+                    'qual-exam-board',
+                    'qual-exam-marks',
+                    'qual-exam-max'
+                ]);
+            case 'section12':
+                return PRIOR_SECTION_IDS.every(sid => checkSectionById(sid));
+            default:
+                return false;
+        }
+    }
+
+    function isSectionComplete(sectionEl) {
+        if (!sectionEl) return false;
+        return checkSectionById(sectionEl.id);
+    }
+
+    function getSequentialProgress() {
+        let completedCount = 0;
+        for (let i = 0; i < progressSections.length; i++) {
+            if (isSectionComplete(progressSections[i].sectionEl)) {
+                completedCount++;
+            } else {
+                break;
+            }
+        }
+        return completedCount;
+    }
+
+    function updateApplicationProgress() {
+        if (!progressFill || !progressPct || !progressSections.length) return;
+
+        const completedCount = getSequentialProgress();
+        const totalSteps = progressSections.length;
+        const activeIndex = Math.min(completedCount, totalSteps - 1);
+        const percent = Math.round((completedCount / totalSteps) * 100);
+
+        progressFill.style.width = percent + '%';
+        progressPct.textContent = percent + '%';
+
+        progressSections.forEach((entry, i) => {
+            entry.stepEl.classList.remove('active', 'completed');
+            if (i < completedCount) {
+                entry.stepEl.classList.add('completed');
+            } else if (i === activeIndex) {
+                entry.stepEl.classList.add('active');
+            }
+        });
+
+        if (completedCount > lastCompletedCount && completedCount < totalSteps) {
+            const nextSection = progressSections[completedCount].sectionEl;
+            if (nextSection) {
+                setTimeout(() => {
+                    nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 280);
+            }
+        }
+        lastCompletedCount = completedCount;
+    }
+
+    if (form && progressSections.length) {
+        let progressTimer;
+        const scheduleProgressUpdate = () => {
+            clearTimeout(progressTimer);
+            progressTimer = setTimeout(updateApplicationProgress, 120);
+        };
+
+        form.addEventListener('input', scheduleProgressUpdate);
+        form.addEventListener('change', scheduleProgressUpdate);
+
+        stepItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const target = document.getElementById(item.dataset.section);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        updateApplicationProgress();
     }
 
     // ===========================

@@ -73,12 +73,21 @@ DOC_MAP = {
     'document_photos_upload': 'Photos (5 Passport size)'
 }
 
+def get_dob_fields(data):
+    """Read DOB from day/month/year selects (supports legacy field names)."""
+    day = (data.get('dob-date') or data.get('dob-day') or '').strip()
+    month = (data.get('dob-month') or '').strip()
+    year = (data.get('dob-year') or '').strip()
+    return day, month, year
+
+
 @app.route('/submit', methods=['POST'])
 def submit_application():
     try:
         data = request.form
         programs = request.form.getlist('program')
         languages = request.form.getlist('language')
+        dob_date, dob_month, dob_year = get_dob_fields(data)
         
         # PIN code collection
         pin = "".join([data.get(f'pin_{i}', '') for i in range(1, 7)])
@@ -140,7 +149,7 @@ def submit_application():
                 WHERE id = ?
             ''', (
                 data.get('name'), data.get('whatsapp'), data.get('gender'),
-                data.get('dob-date'), data.get('dob-month'), data.get('dob-year'),
+                dob_date, dob_month, dob_year,
                 data.get('nationality'), data.get('email'), data.get('aadhar'), data.get('blood-group'), data.get('pan'),
                 data.get('village'), data.get('taluk'), data.get('district'), data.get('religion'), data.get('caste'), data.get('category'),
                 data.get('parent-name'), data.get('occupation'), data.get('postal-address'), data.get('parent-phone'),
@@ -178,7 +187,7 @@ def submit_application():
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 app_no, data.get('name'), data.get('whatsapp'), data.get('gender'),
-                data.get('dob-date'), data.get('dob-month'), data.get('dob-year'),
+                dob_date, dob_month, dob_year,
                 data.get('nationality'), data.get('email'), data.get('aadhar'), data.get('blood-group'), data.get('pan'),
                 data.get('village'), data.get('taluk'), data.get('district'), data.get('religion'), data.get('caste'), data.get('category'),
                 data.get('parent-name'), data.get('occupation'), data.get('postal-address'), data.get('parent-phone'),
