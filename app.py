@@ -13,7 +13,15 @@ def is_vercel():
     return bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
 
 
-app = Flask(__name__)
+# Get the root directory for proper static/template paths in serverless
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(ROOT_DIR, 'static')
+TEMPLATES_DIR = os.path.join(ROOT_DIR, 'templates')
+
+app = Flask(__name__, 
+            static_folder=STATIC_DIR,
+            static_url_path='/static',
+            template_folder=TEMPLATES_DIR)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'prarambha_admin_secret_2026')
 app.register_blueprint(admin_bp)
 
