@@ -6,6 +6,10 @@ import json
 from werkzeug.utils import secure_filename
 import logging
 
+# Suppress Werkzeug development server warning in production
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

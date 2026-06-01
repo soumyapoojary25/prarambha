@@ -77,83 +77,58 @@ def get_mapped_spec(program_string):
 
 
 def ensure_admin_columns():
-    conn = get_db()
-    cursor = conn.cursor()
+    """Ensure admin schema columns exist when admin routes are accessed."""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
 
-    cursor.execute("PRAGMA table_info(applications)")
-    columns = [row[1] for row in cursor.fetchall()]
+        # Check and add missing columns to applications table
+        cursor.execute("PRAGMA table_info(applications)")
+        columns = {row[1] for row in cursor.fetchall()}
 
-    if 'status' not in columns:
-        cursor.execute("ALTER TABLE applications ADD COLUMN status TEXT DEFAULT 'pending'")
-    if 'admin_remark' not in columns:
-        cursor.execute("ALTER TABLE applications ADD COLUMN admin_remark TEXT")
+        if 'status' not in columns:
+            cursor.execute("ALTER TABLE applications ADD COLUMN status TEXT DEFAULT 'pending'")
+        if 'admin_remark' not in columns:
+            cursor.execute("ALTER TABLE applications ADD COLUMN admin_remark TEXT")
 
-    # Defensively verify existing specialization_seats schema
-    cursor.execute("PRAGMA table_info(specialization_seats)")
-    spec_cols = [row[1] for row in cursor.fetchall()]
-    if spec_cols and ('spec_name' not in spec_cols or 'color' not in spec_cols):
-        cursor.execute("DROP TABLE specialization_seats")
+        # Simple check for specialization_seats table existence
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='specialization_seats'")
+        spec_table_exists = cursor.fetchone() is not None
 
-    # Ensure specialization_seats table exists and is seeded
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS specialization_seats (
-            id              INTEGER PRIMARY KEY AUTOINCREMENT,
-            course_name     TEXT NOT NULL,
-            spec_name       TEXT NOT NULL,
-            spec_type       TEXT NOT NULL,
-            color           TEXT NOT NULL,
-            total_seats     INTEGER NOT NULL DEFAULT 60,
-            filled_seats    INTEGER NOT NULL DEFAULT 0,
-            remaining_seats INTEGER NOT NULL DEFAULT 60,
-            UNIQUE(course_name, spec_name)
-        )
-    ''')
-
-    for course, specs in SPEC_DEFINITIONS.items():
-        for s in specs:
+        if not spec_table_exists:
+            # Create the table if it doesn't exist
             cursor.execute('''
-                INSERT OR IGNORE INTO specialization_seats
-                    (course_name, spec_name, spec_type, color, total_seats, filled_seats, remaining_seats)
-                VALUES (?, ?, ?, ?, ?, 0, ?)
-            ''', (course, s['spec_name'], s['spec_type'], s['color'], SEATS_PER_SPEC, SEATS_PER_SPEC))
+                CREATE TABLE specialization_seats (
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    course_name     TEXT NOT NULL,
+                    spec_name       TEXT NOT NULL,
+                    spec_type       TEXT NOT NULL,
+                    color           TEXT NOT NULL,
+                    total_seats     INTEGER NOT NULL DEFAULT 60,
+                    filled_seats    INTEGER NOT NULL DEFAULT 0,
+                    remaining_seats INTEGER NOT NULL DEFAULT 60,
+                    UNIQUE(course_name, spec_name)
+                )
+            ''')
 
-    # Force-update total_seats to current SEATS_PER_SPEC value
-    cursor.execute('UPDATE specialization_seats SET total_seats = ?, remaining_seats = ? - filled_seats', (SEATS_PER_SPEC, SEATS_PER_SPEC))
-
-    # Synchronize filled counts from actual approved applications
-    cursor.execute("UPDATE specialization_seats SET filled_seats = 0, remaining_seats = total_seats")
-
-    cursor.execute("SELECT program, course FROM applications WHERE status = 'approved'")
-    approved_apps = cursor.fetchall()
-    for app in approved_apps:
-        prog = app['program']
-        c_name = app['course'] or get_mapped_course(prog)
-        spec_name = get_mapped_spec(prog)
-
-        # Update specialization_seats
-        cursor.execute('''
-            UPDATE specialization_seats
-            SET filled_seats = filled_seats + 1,
-                remaining_seats = total_seats - (filled_seats + 1)
-            WHERE course_name = ? AND spec_name = ?
-        ''', (c_name, spec_name))
-
-    # Now sync course_seats totals = sum of all its specialization seats
-    for course_name in SPEC_DEFINITIONS.keys():
-        row = cursor.execute(
-            'SELECT COALESCE(SUM(total_seats),0) as t, COALESCE(SUM(filled_seats),0) as f FROM specialization_seats WHERE course_name = ?',
-            (course_name,)
-        ).fetchone()
-        total_sum = row['t']
-        filled_sum = row['f']
-        cursor.execute('''
-            UPDATE course_seats
-            SET total_seats = ?, filled_seats = ?, remaining_seats = ? - ?
-            WHERE course_name = ?
-        ''', (total_sum, filled_sum, total_sum, filled_sum, course_name))
-
-    conn.commit()
-    conn.close()
+            # Seed the table with initial data
+            for course, specs in SPEC_DEFINITIONS.items():
+                for s in specs:
+                    cursor.execute('''
+                        INSERT OR IGNORE INTO specialization_seats
+                            (course_name, spec_name, spec_type, color, total_seats, filled_seats, remaining_seats)
+                        VALUES (?, ?, ?, ?, ?, 0, ?)
+                    ''', (course, s['spec_name'], s['spec_type'], s['color'], SEATS_PER_SPEC, SEATS_PER_SPEC))
+            
+            conn.commit()
+        
+        conn.close()
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in ensure_admin_columns: {str(e)}")
+        # Don't crash - let the app continue
+        pass
 
 
 def generate_csrf_token():
@@ -177,19 +152,18 @@ def login_required(view):
 
 @admin_bp.before_request
 def _ensure_admin_schema():
-    """Ensure admin schema columns exist when admin routes are accessed."""
-    if not hasattr(_ensure_admin_schema, '_schema_checked'):
+    """Ensure admin schema columns exist (only run once)."""
+    # Schema is already created by init_db() on startup
+    # Only update schema if needed and cache the result
+    if not hasattr(_ensure_admin_schema, '_initialized'):
         try:
             ensure_admin_columns()
-            _ensure_admin_schema._schema_checked = True
+            _ensure_admin_schema._initialized = True
         except Exception as e:
-            import traceback
             import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Error ensuring admin schema: {str(e)}")
-            logger.error(traceback.format_exc())
-            # Mark as checked anyway to avoid retrying on every request
-            _ensure_admin_schema._schema_checked = True
+            logging.getLogger(__name__).error(f"Schema initialization error: {e}")
+            # Don't crash the request
+            _ensure_admin_schema._initialized = True
 
 
 @admin_bp.app_context_processor
