@@ -9,17 +9,16 @@
       "use": "@vercel/python",
       "config": {
         "runtime": "python3.11",
-        "maxLambdaSize": "50mb"
+        "maxLambdaSize": "50mb",
+        "handlers": [
+          "api/index.py"
+        ]
       }
-    },
-    {
-      "src": "static/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/static/(.+)",
+      "src": "/static/(.*)",
       "headers": {
         "Cache-Control": "public, max-age=3600, immutable"
       },

@@ -4,6 +4,11 @@ import os
 from datetime import datetime
 import json
 from werkzeug.utils import secure_filename
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from init_admin_db import init_db
 from admin import admin_bp
@@ -25,20 +30,40 @@ app = Flask(__name__,
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'prarambha_admin_secret_2026')
 app.register_blueprint(admin_bp)
 
+# Error handlers for debugging
+@app.before_request
+def log_request():
+    logger.info(f"Request: {request.method} {request.path}")
+
+@app.errorhandler(404)
+def handle_404(e):
+    logger.error(f"404 Error: {request.path} - {str(e)}")
+    return render_template('index.html'), 404
+
+@app.errorhandler(500)
+def handle_500(e):
+    logger.error(f"500 Error: {request.path} - {str(e)}")
+    return jsonify({'error': 'Internal server error'}), 500
+
 
 class _VercelPathMiddleware:
     """Strip serverless path prefixes so Flask routes match on Vercel."""
 
     def __init__(self, wsgi_app):
         self.wsgi_app = wsgi_app
-        self._prefixes = ('/api/index', '/api')
 
     def __call__(self, environ, start_response):
-        path = environ.get('PATH_INFO') or ''
-        for prefix in self._prefixes:
-            if path == prefix or path.startswith(prefix + '/'):
-                environ['PATH_INFO'] = path[len(prefix):] or '/'
-                break
+        path = environ.get('PATH_INFO', '')
+        original_path = path
+        
+        # On Vercel, the PATH_INFO may or may not have /api prefix depending on routing
+        # We need to handle both cases: /api/admin/... and /admin/...
+        if path.startswith('/api/index/'):
+            environ['PATH_INFO'] = path[len('/api/index'):] or '/'
+        elif path == '/api/index':
+            environ['PATH_INFO'] = '/'
+        # If path doesn't start with /api, leave it as is (Vercel may route directly)
+        
         return self.wsgi_app(environ, start_response)
 
 
