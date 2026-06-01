@@ -39,10 +39,19 @@ except Exception as e:
     logger.error(traceback.format_exc())
     raise
 
-# Error handlers for debugging
+# Request logging
 @app.before_request
 def log_request():
     logger.info(f"Request: {request.method} {request.path}")
+
+# Error handlers for debugging
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Handle all exceptions and log them."""
+    import traceback
+    logger.error(f"Exception on {request.method} {request.path}: {str(e)}")
+    logger.error(traceback.format_exc())
+    return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
 @app.errorhandler(404)
 def handle_404(e):

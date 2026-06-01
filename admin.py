@@ -178,7 +178,18 @@ def login_required(view):
 @admin_bp.before_request
 def _ensure_admin_schema():
     """Ensure admin schema columns exist when admin routes are accessed."""
-    ensure_admin_columns()
+    if not hasattr(_ensure_admin_schema, '_schema_checked'):
+        try:
+            ensure_admin_columns()
+            _ensure_admin_schema._schema_checked = True
+        except Exception as e:
+            import traceback
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error ensuring admin schema: {str(e)}")
+            logger.error(traceback.format_exc())
+            # Mark as checked anyway to avoid retrying on every request
+            _ensure_admin_schema._schema_checked = True
 
 
 @admin_bp.app_context_processor
