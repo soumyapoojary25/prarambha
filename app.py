@@ -187,8 +187,9 @@ def index():
     except Exception as e:
         logger.error(f"Error in index route: {str(e)}")
         import traceback
-        logger.error(traceback.format_exc())
-        return jsonify({'error': 'Error loading application form', 'status': 500}), 500
+        tb = traceback.format_exc()
+        logger.error(tb)
+        return jsonify({'error': 'Error loading application form', 'details': str(e), 'traceback': tb, 'status': 500}), 500
 
 DOC_MAP = {
     'document_sslc_upload': 'Original SSLC Marks Card',
