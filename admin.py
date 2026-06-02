@@ -195,7 +195,7 @@ def recalculate_seats(conn):
         spec_counts = {} # key: (course, spec_name)
         
         for app in approved_apps:
-            course = app['course'] or get_mapped_course(app['program'])
+            course = get_mapped_course(app['course'] or app['program'])
             spec = get_mapped_spec(app['program'])
             
             if course in course_counts:
@@ -349,7 +349,7 @@ def process_app_row(row):
         return None
     d = dict(row)
     d['fullname'] = d.get('name')
-    d['course'] = d.get('course') or get_mapped_course(d.get('program'))
+    d['course'] = get_mapped_course(d.get('course') or d.get('program'))
     
     # Parse submitted_documents JSON
     docs = {}
