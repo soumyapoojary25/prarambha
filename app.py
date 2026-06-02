@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, abort
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, abort, send_from_directory
 import sqlite3
 import os
 from datetime import datetime
@@ -19,7 +19,7 @@ from admin import admin_bp
 
 
 def is_vercel():
-    return bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+    return bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or os.path.exists('/var/task'))
 
 
 # Get the root directory for proper static/template paths in serverless
@@ -123,13 +123,24 @@ except Exception as e:
 
 if is_vercel():
     DATABASE = '/tmp/admissions.db'
+    UPLOADS_DIR = '/tmp/uploads'
 else:
     DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
+    UPLOADS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+
+# Ensure uploads directory exists
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+@app.route('/static/uploads/<path:filename>')
+def serve_uploads(filename):
+    """Serve uploaded documents from the correct uploads directory."""
+    return send_from_directory(UPLOADS_DIR, filename)
 
 # --- USER SIDE ROUTES ---
 
@@ -220,9 +231,8 @@ def submit_application():
         # PIN code collection
         pin = "".join([data.get(f'pin_{i}', '') for i in range(1, 7)])
         
-        # Save documents
-        uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
-        os.makedirs(uploads_dir, exist_ok=True)
+        # Ensure uploads directory exists
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
         
         app_no = data.get('app_no', 'unknown')
         
@@ -249,7 +259,8 @@ def submit_application():
                     if file and file.filename != '':
                         # Delete old file
                         if doc_type in uploaded_docs:
-                            old_file_path = os.path.join(app.root_path, uploaded_docs[doc_type].lstrip('/'))
+                            old_filename = os.path.basename(uploaded_docs[doc_type])
+                            old_file_path = os.path.join(UPLOADS_DIR, old_filename)
                             if os.path.exists(old_file_path):
                                 try:
                                     os.remove(old_file_path)
@@ -258,7 +269,7 @@ def submit_application():
                         
                         # Save new file
                         filename = f"{app_no}_{field_name}_{secure_filename(file.filename)}"
-                        file.save(os.path.join(uploads_dir, filename))
+                        file.save(os.path.join(UPLOADS_DIR, filename))
                         uploaded_docs[doc_type] = f"/static/uploads/{filename}"
             
             cursor.execute('''
@@ -296,7 +307,7 @@ def submit_application():
                     file = request.files[field_name]
                     if file and file.filename != '':
                         filename = f"{app_no}_{field_name}_{secure_filename(file.filename)}"
-                        file.save(os.path.join(uploads_dir, filename))
+                        file.save(os.path.join(UPLOADS_DIR, filename))
                         uploaded_docs[doc_type] = f"/static/uploads/{filename}"
             
             cursor.execute('''
@@ -398,14 +409,4 @@ if __name__ == '__main__':
     # Ensure tables exist and initial admin account is seeded.
     init_db()
     
-    # Copy the cropped logo image to static directory
-    import shutil
-    src_logo = r"C:\Users\HP\.gemini\antigravity-ide\brain\0c413ffb-af48-4672-94b2-46435dd014b3\college_logo_cropped_1779875132400.png"
-    dst_logo = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'college-logo.png')
-    if os.path.exists(src_logo):
-        try:
-            shutil.copy(src_logo, dst_logo)
-        except Exception as e:
-            print("Logo copy error:", e)
-            
     app.run(debug=True, port=5000)
