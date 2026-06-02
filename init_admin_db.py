@@ -12,6 +12,17 @@ else:
     DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
 
 def init_db():
+    if is_vercel() and not os.path.exists(DATABASE):
+        root_db = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admissions.db')
+        if os.path.exists(root_db):
+            try:
+                import shutil
+                shutil.copy(root_db, DATABASE)
+                print("Successfully copied admissions.db to /tmp")
+                return
+            except Exception as e:
+                print(f"Error copying database: {e}")
+
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
