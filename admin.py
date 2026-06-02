@@ -45,6 +45,19 @@ SPEC_DEFINITIONS = {
     ],
 }
 
+SLUG_TO_SPEC = {
+    'ai-ml': 'AI & ML',
+    'cyber-security': 'Cyber Security',
+    'regular': 'Regular',
+    'ca-cma-cs': 'CA / CMA / CS',
+    'tally-prime': 'Tally Prime',
+    'data-science': 'Data Science',
+    'ssc': 'SSC',
+    'lscm': 'LSCM'
+}
+
+SPEC_TO_SLUG = {v: k for k, v in SLUG_TO_SPEC.items()}
+
 SEATS_PER_SPEC = 60
 
 
@@ -168,7 +181,10 @@ def _ensure_admin_schema():
 
 @admin_bp.app_context_processor
 def inject_csrf_token():
-    return {'csrf_token': generate_csrf_token()}
+    return {
+        'csrf_token': generate_csrf_token(),
+        'get_spec_slug': lambda name: SPEC_TO_SLUG.get(name, name.lower().replace('&', 'and').replace('/', '-').replace(' ', '-').replace('--', '-').strip('-'))
+    }
 
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
@@ -756,10 +772,19 @@ def application_quick_action(application_id, action_type):
 
 
 # ── Specialization Seat API ────────────────────────────────────────────────
-@admin_bp.route('/api/spec-seats/<course>/<path:spec_name>')
+@admin_bp.route('/api/spec-seats/<course>/<path:spec_slug>')
 @login_required
-def api_spec_seats(course, spec_name):
+def api_spec_seats(course, spec_slug):
     """Return JSON with seat-level detail for a given course + specialization."""
+    spec_name = SLUG_TO_SPEC.get(spec_slug)
+    if not spec_name:
+        for val in SLUG_TO_SPEC.values():
+            if val.lower() == spec_slug.lower() or val == spec_slug:
+                spec_name = val
+                break
+        if not spec_name:
+            spec_name = spec_slug
+
     conn = get_db()
 
     # Fetch the spec row
@@ -820,10 +845,19 @@ def api_spec_seats(course, spec_name):
     }
 
 
-@admin_bp.route('/course/<course>/<path:spec_name>')
+@admin_bp.route('/course/<course>/<path:spec_slug>')
 @login_required
-def course_spec_detail(course, spec_name):
+def course_spec_detail(course, spec_slug):
     """Full-page seat allocation view for a specific course specialization."""
+    spec_name = SLUG_TO_SPEC.get(spec_slug)
+    if not spec_name:
+        for val in SLUG_TO_SPEC.values():
+            if val.lower() == spec_slug.lower() or val == spec_slug:
+                spec_name = val
+                break
+        if not spec_name:
+            spec_name = spec_slug
+
     conn = get_db()
 
     # Fetch spec row

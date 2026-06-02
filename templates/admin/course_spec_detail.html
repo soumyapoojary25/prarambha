@@ -100,7 +100,7 @@
                 </div>
                 <div class="sibling-specs-grid">
                     {% for ss in spec_seats %}
-                    <a href="{{ url_for('admin.course_spec_detail', course=course, spec_name=ss.spec_name) }}"
+                    <a href="{{ url_for('admin.course_spec_detail', course=course, spec_slug=get_spec_slug(ss.spec_name)) }}"
                        class="sibling-spec-chip allotment-spec-box {{ ss.color }} {{ 'current' if ss.spec_name == spec_name else '' }}">
                         <span class="chip-name">{{ ss.spec_name }}</span>
                         <span class="chip-count"><i class="fas fa-chair" style="margin-right: 2px;"></i> {{ ss.filled_seats }} / {{ ss.total_seats }}</span>

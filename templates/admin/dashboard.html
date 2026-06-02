@@ -152,7 +152,7 @@
                         
                         <div class="allotment-spec-grid">
                             {% for ss in spec_seats if ss.course_name == 'BCA' %}
-                            <a href="{{ url_for('admin.course_spec_detail', course='BCA', spec_name=ss.spec_name) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
+                            <a href="{{ url_for('admin.course_spec_detail', course='BCA', spec_slug=get_spec_slug(ss.spec_name)) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
                                 <div class="allotment-spec-label">{{ ss.spec_name }}</div>
                                 <div class="allotment-spec-seats">
                                     <i class="fas fa-chair" style="margin-right: 4px;"></i> <span>{{ ss.filled_seats }} / {{ ss.total_seats }}</span>
@@ -196,7 +196,7 @@
                         
                         <div class="allotment-spec-grid">
                             {% for ss in spec_seats if ss.course_name == 'BCom' %}
-                            <a href="{{ url_for('admin.course_spec_detail', course='BCom', spec_name=ss.spec_name) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
+                            <a href="{{ url_for('admin.course_spec_detail', course='BCom', spec_slug=get_spec_slug(ss.spec_name)) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
                                 <div class="allotment-spec-label">{{ ss.spec_name }}</div>
                                 <div class="allotment-spec-seats">
                                     <i class="fas fa-chair" style="margin-right: 4px;"></i> <span>{{ ss.filled_seats }} / {{ ss.total_seats }}</span>
@@ -240,7 +240,7 @@
                         
                         <div class="allotment-spec-grid">
                             {% for ss in spec_seats if ss.course_name == 'BBA' %}
-                            <a href="{{ url_for('admin.course_spec_detail', course='BBA', spec_name=ss.spec_name) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
+                            <a href="{{ url_for('admin.course_spec_detail', course='BBA', spec_slug=get_spec_slug(ss.spec_name)) }}" class="allotment-spec-box {{ ss.color }} clickable-spec-link">
                                 <div class="allotment-spec-label">{{ ss.spec_name }}</div>
                                 <div class="allotment-spec-seats">
                                     <i class="fas fa-chair" style="margin-right: 4px;"></i> <span>{{ ss.filled_seats }} / {{ ss.total_seats }}</span>
