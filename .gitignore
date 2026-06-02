@@ -1,7 +1,6 @@
 .venv/
 __pycache__/
 *.pyc
-admissions.db
 instance/
 .pytest_cache/
 .gemini/

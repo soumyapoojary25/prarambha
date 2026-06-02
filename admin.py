@@ -179,6 +179,65 @@ def _ensure_admin_schema():
             _ensure_admin_schema._initialized = True
 
 
+def recalculate_seats(conn):
+    try:
+        cursor = conn.cursor()
+        
+        # 1. Reset all filled counts to 0 in database
+        cursor.execute('UPDATE course_seats SET filled_seats = 0, remaining_seats = total_seats')
+        cursor.execute('UPDATE specialization_seats SET filled_seats = 0, remaining_seats = total_seats')
+        
+        # 2. Get all approved applications
+        approved_apps = cursor.execute('SELECT course, program FROM applications WHERE status = "approved"').fetchall()
+        
+        # 3. Count filled seats
+        course_counts = {'BCA': 0, 'BCom': 0, 'BBA': 0}
+        spec_counts = {} # key: (course, spec_name)
+        
+        for app in approved_apps:
+            course = app['course'] or get_mapped_course(app['program'])
+            spec = get_mapped_spec(app['program'])
+            
+            if course in course_counts:
+                course_counts[course] += 1
+                
+            key = (course, spec)
+            spec_counts[key] = spec_counts.get(key, 0) + 1
+            
+        # 4. Write back to course_seats
+        for course, filled in course_counts.items():
+            cursor.execute('''
+                UPDATE course_seats 
+                SET filled_seats = ?, remaining_seats = max(0, total_seats - ?) 
+                WHERE course_name = ?
+            ''', (filled, filled, course))
+            
+        # 5. Write back to specialization_seats
+        for (course, spec), filled in spec_counts.items():
+            cursor.execute('''
+                UPDATE specialization_seats 
+                SET filled_seats = ?, remaining_seats = max(0, total_seats - ?) 
+                WHERE course_name = ? AND spec_name = ?
+            ''', (filled, filled, course, spec))
+            
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Error in recalculate_seats: {e}")
+
+
+@admin_bp.before_request
+def _sync_seats():
+    try:
+        conn = get_db()
+        recalculate_seats(conn)
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Error in _sync_seats: {e}")
+
+
+
 @admin_bp.app_context_processor
 def inject_csrf_token():
     return {
